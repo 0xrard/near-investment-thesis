@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-11-12T06:03:51+00:00",
+  "generated_at_utc": "2026-11-12T08:57:14+00:00",
   "placeholder": false,
   "placeholder_inputs": [],
   "inputs": {
@@ -57,6 +57,7 @@
         "16": 73150517.90186667,
         "20": 91438147.37733334
       },
+      "fee_revenue_basis": "gross protocol fees (volume x take rate), before capture_rate",
       "what_must_be_true": "Intents volume flat; no new chains or solvers; on-chain activity keeps falling."
     },
     {
@@ -69,6 +70,7 @@
         "16": 147131819.9512669,
         "20": 183914774.93908364
       },
+      "fee_revenue_basis": "gross protocol fees (volume x take rate), before capture_rate",
       "what_must_be_true": "Intents volume grows with cross-chain demand; on-chain activity holds; fee capture stable."
     },
     {
@@ -81,6 +83,7 @@
         "16": 271602752.43337786,
         "20": 339503440.54172236
       },
+      "fee_revenue_basis": "gross protocol fees (volume x take rate), before capture_rate",
       "what_must_be_true": "Intents becomes the default cross-chain rail; agent-economy volume adds a second leg."
     }
   ],
@@ -118,7 +121,7 @@
     }
   },
   "p_to_fees": 68.25642047597974,
-  "p_to_fees_note": "Market cap / annualised fees. Cross-check: Nino's input P/F 58.8x (9 Nov 2026) matches market_cap / annualised_fees from the same inputs.",
+  "p_to_fees_note": "Market cap / annualised gross fees (30d x 12). Nino's 9 Nov 2026 dossier input (P/F 58.8x) was computed at that earlier date; compare only at the same date.",
   "hypothesis_tests": {
     "A_sticky": {
       "status": "cannot_compute",
@@ -127,7 +130,18 @@
     "B_additive": {
       "status": "computed",
       "reason": null,
+      "method": "Pearson r on daily log changes (primary); levels below are descriptive only",
       "correlations": {
+        "active_accounts": {
+          "n_days": 363,
+          "pearson_r": 0.018068871924604532
+        },
+        "tx_count": {
+          "n_days": 363,
+          "pearson_r": 0.2006239039929616
+        }
+      },
+      "correlations_levels": {
         "active_accounts": {
           "n_days": 364,
           "pearson_r": -0.18922103653168482
@@ -141,7 +155,70 @@
     "lead_lag_volume_vs_price": {
       "status": "computed",
       "reason": null,
+      "method": "Pearson r of daily log changes: volume growth[t-k] vs price return[t]; k>0 means volume leads. Best lag chosen by |r|. Levels are in lags_levels (descriptive only).",
       "lags": {
+        "-7": {
+          "n_days": 356,
+          "pearson_r": 0.01139309313835711
+        },
+        "-6": {
+          "n_days": 357,
+          "pearson_r": 0.04248529661925365
+        },
+        "-5": {
+          "n_days": 358,
+          "pearson_r": -0.026953901094203165
+        },
+        "-4": {
+          "n_days": 359,
+          "pearson_r": -0.04021875969287517
+        },
+        "-3": {
+          "n_days": 360,
+          "pearson_r": -0.09586985247454455
+        },
+        "-2": {
+          "n_days": 361,
+          "pearson_r": 0.08442553137527917
+        },
+        "-1": {
+          "n_days": 362,
+          "pearson_r": 0.08467597423508362
+        },
+        "0": {
+          "n_days": 363,
+          "pearson_r": -0.07698042069277579
+        },
+        "1": {
+          "n_days": 364,
+          "pearson_r": 0.04127510092802119
+        },
+        "2": {
+          "n_days": 364,
+          "pearson_r": 0.019244431881359714
+        },
+        "3": {
+          "n_days": 364,
+          "pearson_r": 0.04132246775716675
+        },
+        "4": {
+          "n_days": 364,
+          "pearson_r": 0.023305690772042836
+        },
+        "5": {
+          "n_days": 364,
+          "pearson_r": -0.028631416376195932
+        },
+        "6": {
+          "n_days": 364,
+          "pearson_r": 0.0007678243295212786
+        },
+        "7": {
+          "n_days": 364,
+          "pearson_r": -0.05640766598770444
+        }
+      },
+      "lags_levels": {
         "-7": {
           "n_days": 357,
           "pearson_r": 0.45787263808050865
@@ -203,8 +280,10 @@
           "pearson_r": 0.5416555335349157
         }
       },
-      "best_lag_days": 4,
-      "best_pearson_r": 0.5490194358475503
+      "best_lag_days": -3,
+      "best_pearson_r": -0.09586985247454455,
+      "noise_band_95": 0.10330107023216706,
+      "best_is_significant": false
     }
   }
 }

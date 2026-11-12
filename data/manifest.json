@@ -34,6 +34,13 @@
   "source": "BigQuery crypto_near_mainnet_us",
   "url": "queries/g6-outcomes.sql (lean 30d, status column verified)"
  },
+ "buyback_wallet_30d.json": {
+  "note": "F4 snapshot: buyback-wallet flow, trailing 30d to 12 Nov 2026. 779 receipts, 778 inbound (290,403.02 NEAR from intents.near), 0 outbound -> not_triggered. See the provenance field inside the file.",
+  "pulled_at_utc": "2026-11-12T08:36:00+00:00",
+  "rows": 779,
+  "source": "Nearblocks API (read-only): /v1/account/{wallet} + /v1/account/{wallet}/txns",
+  "url": "https://api.nearblocks.io/v1/account/buybacks.multisignature.near/txns"
+ },
  "captions.json": {
   "note": "Figure captions generated from the same live data as the figures.",
   "pulled_at_utc": "2026-11-12T00:23:00+00:00",
@@ -55,7 +62,7 @@
  },
  "falsifiers.json": {
   "note": "Falsifier check (F1-F6) from shipped CSVs + revenue.near.org live scrape.",
-  "pulled_at_utc": "2026-11-12T06:04:26.884509+00:00",
+  "pulled_at_utc": "2026-11-12T08:58:01.944959+00:00",
   "rows": 6,
   "source": "scripts/check_falsifiers.py",
   "url": "scripts/check_falsifiers.py"

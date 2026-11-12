@@ -1,5 +1,5 @@
 {
- "generated_at_utc": "2026-11-12T06:04:26.884509+00:00",
+ "generated_at_utc": "2026-11-12T08:58:01.944959+00:00",
  "data_as_of": "2026-11-10",
  "falsifiers": [
   {
@@ -17,13 +17,13 @@
    "name": "Take < 3 bps or capture < 15% (60d)",
    "threshold": "take < 3 bps OR capture < 15%",
    "reading": {
-    "take_bps": 5.354990113966242,
-    "capture_pct": 32.62064449841689,
-    "net_60d_usd": 4549210.166666667,
+    "take_bps": 5.358413194167178,
+    "capture_pct": 32.641496653126396,
+    "net_60d_usd": 4552118.166666667,
     "gross_60d_usd": 13945801.0,
     "volume_60d_usd": 8495272764.0
    },
-   "reading_text": "take 5.35 bps, capture 32.6% over 2026-09-12..2026-11-10",
+   "reading_text": "take 5.36 bps, capture 32.6% over 2026-09-12..2026-11-10",
    "status": "not_triggered",
    "evidence": "Net 60d $4.55M (monthly net pro-rated: Sep 26 (19/30d); Oct 26 (31/31d); Nov 26 (10d of MTD, daily series)); gross 60d $13.95M; volume 60d $8.50B.",
    "source": "revenue.near.org monthly net + daily revenue series + DefiLlama daily fees/volume (shipped CSVs)"
@@ -42,11 +42,18 @@
    "id": "F4",
    "name": "Buyback-wallet outflow > 5% / 30d",
    "threshold": "outflow > 5% of balance in 30d",
-   "reading": null,
-   "reading_text": "cannot compute: no wallet balance history",
-   "status": "cannot_check",
-   "evidence": "Static reference balance 2,245,764 NEAR (11 Nov 2026, PDF \u00a73.2). Evaluating the falsifier needs the buyback wallet address + a balance history; neither is in this repo.",
-   "source": "PDF \u00a73.2 (static balance only)"
+   "reading": {
+    "outflow_near": 0.0,
+    "balance_near": 2252701.35,
+    "outflow_pct": 0.0,
+    "threshold_near": 112635.07,
+    "receipts_examined": 779,
+    "inbound_near_total": 290403.02
+   },
+   "reading_text": "outflow 0.00 NEAR (0.0000% of 2,252,701.35 NEAR balance) over 2026-10-13..2026-11-12",
+   "status": "not_triggered",
+   "evidence": "779 receipts examined (778 inbound, 290,403.02 NEAR from intents.near; 0 outbound). Snapshot checked 2026-11-12T08:36:00+00:00.",
+   "source": "Nearblocks API (read-only): /v1/account/{wallet} (balance) + /v1/account/{wallet}/txns (receipts, order=desc, per_page=100). Direction by predecessor/receiver; amounts = action deposits."
   },
   {
    "id": "F5",
@@ -74,5 +81,5 @@
   }
  ],
  "triggered": [],
- "summary": "0 of 6 falsifiers triggered: none. 3 not triggered, 1 not yet decidable, 2 cannot check."
+ "summary": "0 of 6 falsifiers triggered: none. 4 not triggered, 1 not yet decidable, 1 cannot check."
 }
