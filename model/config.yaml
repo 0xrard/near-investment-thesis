@@ -1,0 +1,60 @@
+# ALL model assumptions in one file.
+# Change values here, re-run ./rebuild.sh --model-only.
+# Values marked PLACEHOLDER must be replaced by measured data before citing.
+meta:
+  version: 1
+  note: "Placeholder values are marked PLACEHOLDER and must be replaced by measured data before citing."
+
+# Current daily Intents volume (USD). The model uses the average of the last
+# volume_window_days days of the daily volume series from
+# data/intents_volume_api_daily.csv, then data/intents_volume_daily.csv —
+# NOT the last single day (a single day is volatile and swings the scenarios
+# ~2x between runs). Only if neither CSV exists does it use the placeholder
+# below.
+current_daily_intents_volume_usd: null
+volume_window_days: 30
+placeholder_daily_volume_usd: 100000000  # PLACEHOLDER — illustrative only, never cite
+
+# NEAR price (USD). Prefers the latest value from data/near_price_daily.csv.
+near_price_usd: null
+placeholder_near_price_usd: 1.0  # PLACEHOLDER
+
+# Total NEAR supply. Fill from a primary source (NearBlocks API / on-chain)
+# before citing. Until then the deflationary threshold is computed from the
+# placeholder below and flagged as a placeholder in every output.
+total_supply_near: null
+placeholder_total_supply_near: 1300000000  # PLACEHOLDER
+
+issuance:
+  # Gross issuance, 2.5%/yr — cut from 5% on 30 Oct 2025 (protocol parameter).
+  annual_rate: 0.025
+  # Net issuance after burn, 2027 estimate, ~1.5% (Nino's input, 9 Nov 2026).
+  # Implies fee burn offsets ~1.0pp of gross issuance. Verify from on-chain
+  # burn data before citing; used only as a scenario cross-check, not as a
+  # model input.
+  net_issuance_2027e: 0.015
+
+fee:
+  # Fee take rate: the share of Intents volume kept as protocol fees.
+  # OPEN parameter — verify the exact rate from Intents docs; never invent.
+  # Sensitivity is shown at 5/10/20 bps; 10 bps is the base case.
+  take_rates_bps: [5, 10, 20]
+  base_take_rate_bps: 10
+  # Fee capture rate: share of gross Intents fees that reaches NEAR
+  # (buybacks). PLACEHOLDER — measure from data (fees vs buybacks).
+  capture_rate: 0.26
+
+scenarios:
+  bear:
+    annual_growth: 0.0
+    what_must_be_true: "Intents volume flat; no new chains or solvers; on-chain activity keeps falling."
+  base:
+    # Implied 5y fee growth +15%/yr (Nino's input, 9 Nov 2026).
+    annual_growth: 0.15
+    what_must_be_true: "Intents volume grows with cross-chain demand; on-chain activity holds; fee capture stable."
+  bull:
+    annual_growth: 0.30  # PLACEHOLDER — illustrative only
+    what_must_be_true: "Intents becomes the default cross-chain rail; agent-economy volume adds a second leg."
+
+# Projection horizon (years) for the scenario table and sensitivity table.
+projection_years: 5
