@@ -212,7 +212,7 @@ color:var(--ink-soft);font-size:.85rem}
     <p>Rising Intents volume goes together with rising (or holding) daily active accounts and transaction counts — Intents adds demand, it does not move existing activity off-chain.</p>
     <p><strong>Falsifier:</strong> if Intents volume rises while on-chain activity falls, Intents is cannibalising — this weakens the "NEAR as settlement layer" thesis.</p>
     
-<p><strong>B — Additive growth:</strong> computed. active_accounts: r=-0.19 (n=364d); tx_count: r=-0.10 (n=364d)</p>
+<p><strong>B — Additive growth:</strong> computed on daily changes (volume growth vs activity growth). active_accounts: r=0.02 (n=363d); tx_count: r=0.20 (n=363d)</p>
   </div>
 </section>
 
@@ -476,8 +476,8 @@ ORDER BY 1;</pre></details>
   <div class="box">
     <h3>Hypothesis tests</h3>
     <p><strong>A — Sticky volume:</strong> cannot compute. Swapper-level data not available: the Intents Explorer API needs a JWT (see THESIS.md §8). If the API has no swapper field, this stays uncomputed.</p>
-<p><strong>B — Additive growth:</strong> computed. active_accounts: r=-0.19 (n=364d); tx_count: r=-0.10 (n=364d)</p>
-<p><strong>Lead/lag (volume vs price):</strong> computed. Best lag: 4 days (r=0.55). Positive lag means volume moves first.</p>
+<p><strong>B — Additive growth:</strong> computed on daily changes (volume growth vs activity growth). active_accounts: r=0.02 (n=363d); tx_count: r=0.20 (n=363d)</p>
+<p><strong>Lead/lag (volume vs price):</strong> computed on daily changes. Strongest lag (by |r|): -3 days (r=-0.10; 95% noise band ±0.10, so within noise). Positive lag means volume moves first.</p>
     <p class="muted">Lead/lag: positive lag means Intents volume moves first. Correlations use daily series (n ≥ 30 days); a rising correlation toward positive lags is the pattern the thesis predicts — it is a correlation, not proof of causation.</p>
   </div>
   <div class="box falsifier">
@@ -522,7 +522,7 @@ ORDER BY 1;</pre></details>
   <div class="box">
     <h3>Status &amp; data freshness</h3>
 <p><strong>MAX(block_date) in BigQuery: 2026-11-11.</strong> The on-chain leg is only as fresh as this date — if it is months old, it cannot speak about current usage.</p>
-    <p class="muted">Dashboard generated: 2026-11-12 06:04 UTC. Rebuild any time with <code>bash rebuild.sh</code> — the same page shows fresher data.</p>
+    <p class="muted">Dashboard generated: 2026-11-12 08:58 UTC. Rebuild any time with <code>bash rebuild.sh</code> — the same page shows fresher data.</p>
   </div>
   <div class="box">
     <h3>Sources</h3>
