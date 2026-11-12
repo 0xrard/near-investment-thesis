@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ONE command: fetch -> model -> figures -> build dashboard -> check falsifiers.
-#   ./rebuild.sh              full rebuild (needs .env credentials for BigQuery + Intents)
-#   ./rebuild.sh --model-only model + figures + dashboard + falsifiers from the shipped CSVs (no credentials)
+#   bash rebuild.sh              full rebuild (needs .env credentials for BigQuery + Intents)
+#   bash rebuild.sh --model-only model + figures + dashboard + falsifiers from the shipped CSVs (no credentials)
 # Figures (scripts/generate_chapter*_figures.py) fetch live data (keyless, no
 # credentials) and regenerate figures/ + data/captions.json + data/stats.json.
 # They run after the model so the Chapter 4 stats cross-check reads fresh
@@ -18,7 +18,7 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 usage() {
-  echo "Usage: ./rebuild.sh [--model-only]"
+  echo "Usage: bash rebuild.sh [--model-only]"
   echo "  (no args)    full rebuild: fetch -> model -> figures -> build dashboard -> check falsifiers"
   echo "  --model-only model + figures + dashboard + falsifiers from the shipped CSVs (no credentials)"
 }
@@ -38,7 +38,7 @@ if [ "$MODE" = "full" ]; then
     echo ""
     echo "Fetch failed. Either fix the credentials (see the message above),"
     echo "or rebuild from the shipped CSVs with no credentials:"
-    echo "  ./rebuild.sh --model-only"
+    echo "  bash rebuild.sh --model-only"
     exit 1
   fi
 else

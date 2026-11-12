@@ -24,14 +24,16 @@ MAX(block_date) = 2026-11-11, G1 + G2 over 365 days, G3 lean 7 days,
 G6 lean 30 days — all in `data/`, see `data/manifest.json` and
 `data/README.md`. Intents volume + fees come from DefiLlama (keyless);
 the canonical Intents Explorer API series needs a JWT and is not yet
-fetched. `./rebuild.sh --model-only` rebuilds model + figures + dashboard +
+fetched. `bash rebuild.sh --model-only` rebuilds model + figures + dashboard +
 falsifier checks from the shipped CSVs with no credentials.
 
 ## How to re-run (one command)
 
+Run it via `bash` (not `./rebuild.sh`): files uploaded through the GitHub web UI lose the executable bit, so the bare form fails with Permission denied in a fresh clone.
+
 ```bash
-./rebuild.sh            # full rebuild: fetch -> model -> figures -> dashboard -> falsifiers
-./rebuild.sh --model-only   # Level 2: model + figures + dashboard + falsifiers, NO credentials needed
+bash rebuild.sh            # full rebuild: fetch -> model -> figures -> dashboard -> falsifiers
+bash rebuild.sh --model-only   # Level 2: model + figures + dashboard + falsifiers, NO credentials needed
 ```
 
 ### Level 1 — full rebuild (needs credentials)
@@ -42,17 +44,17 @@ falsifier checks from the shipped CSVs with no credentials.
 
 ```bash
 cp .env.example .env   # fill in your credentials
-./rebuild.sh
+bash rebuild.sh
 ```
 
-If credentials are missing, `fetch` fails with a clear message telling you exactly what is missing — and you can still run `./rebuild.sh --model-only`.
+If credentials are missing, `fetch` fails with a clear message telling you exactly what is missing — and you can still run `bash rebuild.sh --model-only`.
 
 ### Level 2 — model only (no credentials, zero setup)
 
 Only Python 3.10+ (standard library) is needed. The model runs on the CSVs already shipped in `data/`; if no CSVs exist yet it runs on the clearly-labelled placeholder assumptions in `model/config.yaml` and every output is marked as a placeholder.
 
 ```bash
-./rebuild.sh --model-only
+bash rebuild.sh --model-only
 ```
 
 This is the level the AI judges check: clone → run one command → the dashboard builds and matches this README.

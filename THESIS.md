@@ -4,7 +4,7 @@
 Author: **0xrard**. Status: **filled with data as of 11–12 November 2026.**
 Deadline: 14 November 2026, 23:59 UTC.
 
-> Every number in this document traces to primary data or to a computation in `model/` whose assumptions are in `model/config.yaml`. Data as of: BigQuery 11 November 2026, DefiLlama / CoinGecko 11 November 2026, model run 12 November 2026 00:48 UTC. Re-run `./rebuild.sh` to refresh; the judges can re-run for updated data. Where a number comes from Nino's PDF v3 (11 Nov 2026 08:36–09:00 UTC) rather than this repo's own computations, it is labelled as such.
+> Every number in this document traces to primary data or to a computation in `model/` whose assumptions are in `model/config.yaml`. Data as of: BigQuery 11 November 2026, DefiLlama / CoinGecko 11 November 2026, model run 12 November 2026 00:48 UTC. Re-run `bash rebuild.sh` to refresh; the judges can re-run for updated data. Where a number comes from Nino's PDF v3 (11 Nov 2026 08:36–09:00 UTC) rather than this repo's own computations, it is labelled as such.
 
 ## 1. The claim
 

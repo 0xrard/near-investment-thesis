@@ -1,5 +1,5 @@
 # ALL model assumptions in one file.
-# Change values here, re-run ./rebuild.sh --model-only.
+# Change values here, re-run bash rebuild.sh --model-only.
 # Values marked PLACEHOLDER must be replaced by measured data before citing.
 meta:
   version: 1
