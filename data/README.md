@@ -21,6 +21,7 @@ Raw CSVs land here, one file per series, plus a `manifest.json` written by
 | `defillama_intents_fees.json` | DefiLlama | Intents fee summary: total24h/7d/30d/all-time |
 | `near_market.json` | CoinGecko | NEAR market snapshot: price, market cap, supply |
 | `near_price_daily.csv` | CoinGecko | G5: daily NEAR price + volume (USD) |
+| `buyback_wallet_30d.json` | Nearblocks API | F4 snapshot: buyback-wallet flow, trailing 30d (see below) |
 | `model_outputs.json` | `model/model.py` | Scenario table, threshold, sensitivity, hypothesis tests |
 | `manifest.json` | `scripts/fetch.py` | Source + pull date per file |
 
@@ -35,6 +36,29 @@ Raw CSVs land here, one file per series, plus a `manifest.json` written by
   a clearly-labelled placeholder ("—") for it, never an invented number.
 - `manifest.json` is the audit trail: if a number is questioned, the
   manifest says where it came from and when it was pulled.
+
+## F4 snapshot (`buyback_wallet_30d.json`)
+
+Input of falsifier F4 (buyback-wallet outflow > 5% / 30d). Limits, so nobody
+reads more into it than it holds:
+
+- **Native NEAR only.** Flows are the action deposits of the wallet's
+  receipts. Token transfers (wNEAR / FT) are not counted.
+- **Snapshot, not a live call.** `scripts/fetch.py` and `rebuild.sh` do not
+  fetch it, so the rebuild stays deterministic offline. How it was pulled is
+  recorded in the file (`source`, `provenance`): Nearblocks
+  `/v1/account/{wallet}` for the balance and `/v1/account/{wallet}/txns`
+  (`order=desc`, `per_page=100`, paginated) for the receipts; direction by
+  predecessor/receiver.
+- **Expires after 30 days** (`F4_MAX_SNAPSHOT_AGE_DAYS` in `scripts/check_falsifiers.py`,
+  = the F4 window; tighten it if you refresh more often). If `checked_at_utc` is older (or the
+  file is missing/invalid, or the balance is 0), `check_falsifiers.py`
+  reports F4 as `cannot_check` instead of repeating an old
+  `not_triggered`.
+- **To refresh:** re-query the endpoints above for the trailing 30 days and
+  overwrite the file, keeping at least `balance_near`, `outbound_near_total`,
+  `checked_at_utc`, `window_start_utc`, `window_end_utc`, `source`,
+  `provenance`.
 
 ## Current state
 
