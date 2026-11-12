@@ -37,12 +37,14 @@ Figure 6 method (monthly offset ratio = net revenue / token emissions):
   overlap. Key values: Aug 2025 ~0.4%, Sep 2026 peak 25.2%, Nov 2026 17.7%
   (partial month, faded + '*').
 Figure 7 method (deflation threshold model):
-  A model chart, not a time series. Inputs are the PDF §3.3 stated values
-  (labelled as model inputs, not fetched): take rate 6.28 bps, NEAR price
-  $3.61, mint 89,822 NEAR/day at 2.5% and 57,300 NEAR/day at 1.6% (HSP-029
-  target). V* markers at the PDF's stated $516M/day (2.5%) and $330M/day
-  (1.6%); the formula V* = (i x S / 365 x P) / tau gives $516.3M and $330.5M,
-  confirming the rounded labels.
+  A model chart, not a time series. Inputs are MEASURED and read from
+  data/model_outputs.json (see _fig7_inputs): net take 4.72 bps (16 bps
+  gross x 29.5% capture), NEAR price $3.72, mint 89,822 NEAR/day at 2.5%
+  and 57,300 NEAR/day at 1.6% (HSP-029 target). V* markers at the model's
+  $702M/day (2.5%) and $450M/day (1.6%); the formula
+  V* = (i x S / 365 x P) / tau gives $708M and $453M, a touch above the
+  markers because the model divides the issuance value ($121.0M) while the
+  formula divides supply x price ($122.1M).
 
 Requirements: python3 + requests + matplotlib. No API keys.
 """
@@ -195,14 +197,42 @@ plt.rcParams.update({
 # on-chain accounting (PDF §3.1: 87,604 NEAR/day actually emitted).
 DAILY_EMISSIONS = 87604.0
 
-# Figure 7 model inputs — the PDF §3.3 stated values (labelled model inputs).
-TAKE_BPS = 6.28        # October effective take rate, basis points
-PRICE = 3.61           # NEAR price, USD
+# Figure 7 model inputs — MEASURED, read from the model outputs (the model
+# runs before the figures in rebuild.sh, so this file is always fresh).
+# Net take = base gross take x capture (model inputs); V* markers come
+# straight from the model's deflationary threshold, so Figure 7 can never
+# disagree with THESIS.md section 6 again. The 1.6% marker scales the 2.5%
+# threshold by the issuance ratio (1.6/2.5). Fallbacks are the same measured
+# values (12 Nov 2026), used only if model_outputs.json is absent (cold
+# start before the first model run).
+def _fig7_inputs():
+    fallback = {"take_bps": 4.72, "price": 3.72,
+                "vstar_25": 702.0, "vstar_16": 450.0, "current_vol": 125.3}
+    try:
+        m = json.loads((ROOT / "data" / "model_outputs.json").read_text())
+        inp = m["inputs"]
+        take = (float(inp["base_take_rate_bps"]) / 10000.0
+                * float(inp["fee_capture_rate"]))
+        v25 = float(m["deflationary_threshold"]
+                    ["daily_volume_usd_by_take_rate_bps"]
+                    [str(int(inp["base_take_rate_bps"]))]) / 1e6
+        return {"take_bps": take * 10000.0,
+                "price": float(inp["near_price_usd"]),
+                "vstar_25": v25,
+                "vstar_16": v25 * 1.6 / 2.5,
+                "current_vol": float(inp["daily_intents_volume_usd"]) / 1e6}
+    except Exception:
+        return fallback
+
+
+_FIG7 = _fig7_inputs()
+TAKE_BPS = _FIG7["take_bps"]   # net take rate, basis points (measured)
+PRICE = _FIG7["price"]         # NEAR price, USD (model inputs)
 MINT_25 = 89822.0      # NEAR/day at 2.5% max inflation (formula: S*i/365)
 MINT_16 = 57300.0      # NEAR/day at 1.6% HSP-029 target (HSP-029: 89.5K -> 57.3K)
-VSTAR_25 = 516.0       # $M/day, PDF stated V* at 2.5%
-VSTAR_16 = 330.0       # $M/day, PDF stated V* at 1.6%
-CURRENT_VOL = 125.0    # $M/day, current 30-day run-rate
+VSTAR_25 = _FIG7["vstar_25"]   # $M/day, model V* at 2.5% (measured inputs)
+VSTAR_16 = _FIG7["vstar_16"]   # $M/day, model V* at 1.6% (scaled by 1.6/2.5)
+CURRENT_VOL = _FIG7["current_vol"]  # $M/day, current 30-day run-rate (model)
 
 
 def get(url, timeout=30):
@@ -390,49 +420,54 @@ def fig6():
 def fig7():
     """The deflation threshold model (PDF §3.3, Figure 7).
 
-    Model chart from the PDF's stated inputs: take rate 6.28 bps, NEAR $3.61,
-    mint 89,822 NEAR/day at 2.5% and 57,300 NEAR/day at 1.6%. Teal line = NEAR
-    removed/day via revenue; dashed lines = the two mints; X markers = the two
-    V* intersections; red dot = the current $125M/day run-rate.
+    Model chart from the MEASURED inputs (see _fig7_inputs, read from
+    data/model_outputs.json): net take rate 4.72 bps (16 bps gross x 29.5%
+    capture), NEAR $3.72, mint 89,822 NEAR/day at 2.5% and 57,300 NEAR/day
+    at 1.6%. Teal line = NEAR removed/day via revenue; dashed lines = the
+    two mints; X markers = the two V* intersections; red dot = the current
+    $125M/day run-rate.
     """
     take = TAKE_BPS / 1e4
     # NEAR removed per $M of daily volume, in thousands of NEAR/day.
     per_m = 1e6 * take / PRICE / 1e3
     xs = [0.0, 800.0]
     ys = [x * per_m for x in xs]
-    # Formula cross-check of the PDF's rounded V* labels.
+    # Formula cross-check: same inputs through V* = (i x S / 365 x P) / tau.
+    # It lands a touch above the model markers ($708M vs $702M) because the
+    # model divides the issuance VALUE ($121.0M) while the formula divides
+    # supply x price ($122.1M) — same inputs, different rounding base.
     supply = 1311.4e6
     v25 = supply * 0.025 / 365 * PRICE / take / 1e6
     v16 = supply * 0.016 / 365 * PRICE / take / 1e6
     print(f"fig7: formula V* = ${v25:.1f}M/day at 2.5%, ${v16:.1f}M/day at 1.6% "
-          f"(PDF labels $516M / $330M); removed/day per $1M volume = "
+          f"(model markers ${VSTAR_25:.0f}M / ${VSTAR_16:.0f}M); removed/day per $1M volume = "
           f"{per_m * 1e3:.0f} NEAR")
 
     fig, ax = plt.subplots(figsize=(10, 5))
     ax.plot(xs, ys, color=TEAL, lw=2.0,
-            label="NEAR removed/day via revenue (take = 6.3 bps)")
+            label=f"NEAR removed/day via revenue (take = {TAKE_BPS:.2f} bps net)")
     ax.axhline(MINT_25 / 1e3, color=LIGHT, lw=1.3, ls="--",
                label="Mint @ 2.5% inflation: 90K NEAR/day")
     ax.axhline(MINT_16 / 1e3, color=TERRA, lw=1.3, ls="--",
                label="Mint @ 1.6% (HSP-029 target): 57K NEAR/day")
-    # V* intersections (PDF stated values, on their mint lines).
+    # V* intersections (model values, on their mint lines).
     ax.plot([VSTAR_25], [MINT_25 / 1e3], marker="x", ms=10, mew=2.5,
             color=LIGHT, linestyle="none")
     ax.plot([VSTAR_16], [MINT_16 / 1e3], marker="x", ms=10, mew=2.5,
             color=TERRA, linestyle="none")
     bbox = dict(facecolor=BG, alpha=0.9, edgecolor="none", pad=1.5)
     ax.text(VSTAR_25 - 8, MINT_25 / 1e3 - 14,
-            "V* @ 2.5%: $516M/day\n(4.1x current volume)",
+            f"V* @ 2.5%: ${VSTAR_25:.0f}M/day\n({VSTAR_25 / CURRENT_VOL:.1f}x current volume)",
             fontsize=9, color=TEXT, ha="right", va="top", bbox=bbox)
     ax.text(VSTAR_16 - 8, MINT_16 / 1e3 - 13,
-            "V* @ 1.6%: $330M/day\n(2.6x current volume)",
+            f"V* @ 1.6%: ${VSTAR_16:.0f}M/day\n({VSTAR_16 / CURRENT_VOL:.1f}x current volume)",
             fontsize=9, color=TEXT, ha="right", va="top", bbox=bbox)
     # Current run-rate: label above-LEFT of the dot so it cannot collide with
     # the V* @ 1.6% label (which sits below-left of its X marker).
     cur_y = CURRENT_VOL * per_m
     ax.plot([CURRENT_VOL], [cur_y], marker="o", ms=7, color=RED, linestyle="none")
     ax.text(CURRENT_VOL - 10, cur_y + 6,
-            "Current: $125M/day\n22K NEAR/day removed\n(17-25% of mint)",
+            f"Current: ${CURRENT_VOL:.0f}M/day\n{cur_y:.0f}K NEAR/day removed\n({cur_y / (MINT_25 / 1e3) * 100:.0f}% of mint)",
             fontsize=9, color=RED, ha="right", va="bottom", bbox=bbox)
     ax.set_xlim(0, 800)
     ax.set_ylim(0, 125)
@@ -441,7 +476,8 @@ def fig7():
     ax.set_title("The deflation threshold model", fontsize=12, color=TEXT, pad=10)
     ax.legend(loc="lower right", fontsize=9, labelcolor=TEXT)
     style_ax(ax)
-    source_line(fig, "Model inputs (PDF §3.3): take rate 6.28 bps, NEAR $3.61, "
+    source_line(fig, f"Model inputs (measured 12 Nov 2026): net take {TAKE_BPS:.2f} bps "
+                     f"(16 bps gross x 29.5% capture), NEAR ${PRICE:.2f}, "
                      f"mint {MINT_25:,.0f} NEAR/day (2.5%) / {MINT_16:,.0f} (1.6%). "
                      f"Retrieved {FETCHED}")
     fig.tight_layout(rect=(0, 0.03, 1, 1))
@@ -450,11 +486,12 @@ def fig7():
     print(f"fig7: V* markers at ${VSTAR_25:.0f}M/day (2.5%, mint {MINT_25 / 1e3:.1f}K) "
           f"and ${VSTAR_16:.0f}M/day (1.6%, mint {MINT_16 / 1e3:.1f}K); "
           f"current {CURRENT_VOL:.0f}M/day -> {cur_y:.1f}K NEAR/day removed")
-    # Model chart: inputs are the PDF §3.3 stated values, so the caption
-    # re-states those same constants (it only moves with a code change).
+    # Model chart: inputs are read from the model outputs (see _fig7_inputs),
+    # so the caption re-states the measured values (it only moves with a
+    # model re-run).
     CAPTIONS["fig7"] = (
         "Figure 7: The deflation threshold model. The teal line is NEAR removed "
-        f"per day via revenue at the October take rate ({TAKE_BPS:.2f} bps); "
+        f"per day via revenue at the measured net take rate ({TAKE_BPS:.2f} bps); "
         "dashed lines are the mint at 2.5% and at the 1.6% HSP-029 target. "
         f"V* is ${VSTAR_25:.0f}M/day at 2.5% and ${VSTAR_16:.0f}M/day at 1.6% "
         f"({VSTAR_16 / CURRENT_VOL:.1f}x current volume). Sources: DefiLlama, "
@@ -474,7 +511,16 @@ def main():
             print(f"FAILED {name}: {exc}", file=sys.stderr)
     for name, _ in jobs:
         p = OUT / name
-        print(("OK   " if p.exists() else "MISS "), p, p.stat().st_size if p.exists() else "")
+        if name in failed:
+            # Never print OK for a file this run did not generate: a stale
+            # file still on disk is KEPT, not OK.
+            if p.exists():
+                print(f"KEPT  {p} {p.stat().st_size} (previous file, not regenerated)",
+                      file=sys.stderr)
+            else:
+                print(f"MISS  {p}", file=sys.stderr)
+        else:
+            print("OK   ", p, p.stat().st_size if p.exists() else "")
     if CAPTIONS:
         emit_captions(CAPTIONS)
     if "emissions_offset_pct" in STATS:

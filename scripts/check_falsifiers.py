@@ -65,10 +65,11 @@ def read_series(path, value_col):
     return rows
 
 
-def revenue_monthly():
-    """Monthly net protocol revenue from revenue.near.org (RSC payload
-    scrape). Same technique as scripts/generate_chapter3_figures.py.
-    Returns {(year, month): net_usd} or None when unreachable/unparseable."""
+def _revenue_rsc():
+    """Fetch revenue.near.org once; return the decoded RSC payload text,
+    or None when unreachable/unparseable. The payload carries both the
+    monthly net-revenue series and the daily cumulative revenue series,
+    so one fetch feeds both parsers below."""
     try:
         html = requests.get("https://revenue.near.org",
                             headers={"User-Agent": "near-thesis/1.0"},
@@ -77,27 +78,59 @@ def revenue_monthly():
             r'self\.__next_f\.push\(\[1,\s*"((?:[^"\\]|\\.)*)"\]\)', html)
         rsc = "".join(chunks).encode().decode("unicode_escape",
                                               errors="replace")
-        rows = re.findall(
-            r'\{"date":"([^"]+)","value":([\d.]+),"cumulative":([\d.]+)\}',
-            rsc)
-        if not rows:
-            return None
-        mon = {"Jan": 1, "Feb": 2, "Mar": 3, "Apr": 4, "May": 5, "Jun": 6,
-               "Jul": 7, "Aug": 8, "Sep": 9, "Oct": 10, "Nov": 11, "Dec": 12}
-        out = {}
-        for label, value, _cum in rows:
-            m, y = label.split()
-            out[(2000 + int(y.strip("'")), mon[m])] = float(value)
-        return out
+        return rsc or None
     except Exception as exc:  # noqa: BLE001 - live scrape is best-effort
         print(f"falsifiers: revenue.near.org unreachable ({exc})",
               file=sys.stderr)
         return None
 
 
-def net_in_window(net_m, start, end):
+def revenue_monthly(rsc):
+    """Monthly net protocol revenue (USD) from the RSC payload.
+    Returns {(year, month): net_usd} or None when unparseable. Same
+    technique as scripts/generate_chapter3_figures.py."""
+    rows = re.findall(
+        r'\{"date":"([^"]+)","value":([\d.]+),"cumulative":([\d.]+)\}',
+        rsc)
+    if not rows:
+        return None
+    mon = {"Jan": 1, "Feb": 2, "Mar": 3, "Apr": 4, "May": 5, "Jun": 6,
+           "Jul": 7, "Aug": 8, "Sep": 9, "Oct": 10, "Nov": 11, "Dec": 12}
+    out = {}
+    for label, value, _cum in rows:
+        m, y = label.split()
+        out[(2000 + int(y.strip("'")), mon[m])] = float(value)
+    return out
+
+
+def revenue_daily(rsc):
+    """Daily cumulative revenue (NEAR) from the RSC payload's
+    absoluteRevEmissions array. Returns {date: cumulative_revenue_near}
+    or None when unparseable. Same series
+    scripts/generate_chapter4_figures.py uses for Figure 6."""
+    m = re.search(r'"absoluteRevEmissions":\[(.*?)\]', rsc, re.S)
+    if not m:
+        return None
+    try:
+        arr = json.loads("[" + re.sub(r',\{"date[^\}]*$', "",
+                                      m.group(1)) + "]")
+    except Exception:
+        return None
+    return {datetime.date.fromisoformat(e["date"]): float(e["revenueNear"])
+            for e in arr}
+
+
+def net_in_window(net_m, start, end, daily=None, today=None):
     """Net revenue over [start, end], pro-rating monthly figures by the
-    overlapping days in each month. Returns (value, months_used)."""
+    overlapping days in each month. Returns (value, months_used).
+    The current (partial) month's dashboard value is month-to-date, NOT a
+    full-month figure: pro-rating it by overlap/days-in-month undercounts
+    it (Nov 2026 was counted at 10/30 of an MTD value; the true 10-day
+    figure is ~3x that — verified 12 Nov 2026 against the daily series).
+    For the partial month, use the daily cumulative revenue series when
+    available: the overlap's share is its NEAR delta over the MTD NEAR
+    delta. Without the daily series, fall back to overlap /
+    days-elapsed-in-month."""
     total = 0.0
     used = []
     d = datetime.date(start.year, start.month, 1)
@@ -108,8 +141,39 @@ def net_in_window(net_m, start, end):
         lo, hi = max(m_start, start), min(m_end, end)
         overlap = (hi - lo).days + 1
         if overlap > 0 and (d.year, d.month) in net_m:
-            total += net_m[(d.year, d.month)] * overlap / dim
-            used.append(f"{d.strftime('%b %y')} ({overlap}/{dim}d)")
+            key = (d.year, d.month)
+            partial = (today is not None
+                       and (d.year, d.month) == (today.year, today.month))
+            if partial and daily:
+                month_days = [dt for dt in daily
+                              if (dt.year, dt.month) == key]
+                if month_days:
+                    mtd_end = max(month_days)
+                    prev_end = m_start - datetime.timedelta(days=1)
+                    mtd_near = daily[mtd_end] - daily.get(prev_end, 0.0)
+                    hi_near = daily.get(hi, daily[mtd_end])
+                    lo_near = daily.get(lo - datetime.timedelta(days=1),
+                                        0.0)
+                    overlap_near = hi_near - lo_near
+                    if mtd_near > 0 and overlap_near >= 0:
+                        total += net_m[key] * overlap_near / mtd_near
+                        used.append(f"{d.strftime('%b %y')} ({overlap}d "
+                                    "of MTD, daily series)")
+                    else:
+                        total += net_m[key] * overlap / today.day
+                        used.append(f"{d.strftime('%b %y')} "
+                                    f"({overlap}/{today.day}d elapsed)")
+                else:
+                    total += net_m[key] * overlap / today.day
+                    used.append(f"{d.strftime('%b %y')} "
+                                f"({overlap}/{today.day}d elapsed)")
+            elif partial and today is not None:
+                total += net_m[key] * overlap / today.day
+                used.append(f"{d.strftime('%b %y')} "
+                            f"({overlap}/{today.day}d elapsed)")
+            else:
+                total += net_m[key] * overlap / dim
+                used.append(f"{d.strftime('%b %y')} ({overlap}/{dim}d)")
         d = m_end + datetime.timedelta(days=1)
     return total, used
 
@@ -132,7 +196,25 @@ def main():
               "intents_fees_daily.csv missing from data/",
               file=sys.stderr)
         return 1
-    net_m = revenue_monthly()
+    rsc = _revenue_rsc()
+    net_m = revenue_monthly(rsc) if rsc else None
+    daily = revenue_daily(rsc) if rsc else None
+    if net_m is None and OUT.exists():
+        # Offline run must not silently degrade the committed file: F2 and
+        # F6 would flip from computed to cannot_check. Keep the previous
+        # readings (their generated_at_utc shows their age) and do not
+        # touch the manifest either. A first run with no previous file
+        # still writes the honest cannot_check version below.
+        prev_age = ""
+        try:
+            prev = json.loads(OUT.read_text())
+            prev_age = f" (generated {prev.get('generated_at_utc', '?')})"
+        except Exception:
+            pass
+        print("falsifiers: revenue.near.org unreachable — keeping previous "
+              f"data/falsifiers.json{prev_age}; F2/F6 readings stand.",
+              file=sys.stderr)
+        return 0
     results = []
 
     # ---- F1: volume < $75M/day x 30d -------------------------------------
@@ -173,7 +255,7 @@ def main():
             "source": "revenue.near.org (failed) + DefiLlama daily fees",
         })
     else:
-        net60, used = net_in_window(net_m, start, end)
+        net60, used = net_in_window(net_m, start, end, daily, today)
         take_bps = net60 / vol60 * 10_000 if vol60 else float("nan")
         capture = net60 / gross60 * 100 if gross60 else float("nan")
         triggered = take_bps < 3 or capture < 15
@@ -190,8 +272,8 @@ def main():
             "evidence": f"Net 60d {usd(net60)} (monthly net pro-rated: "
                         f"{'; '.join(used)}); gross 60d {usd(gross60)}; "
                         f"volume 60d {usd(vol60)}.",
-            "source": "revenue.near.org monthly net + DefiLlama daily "
-                      "fees/volume (shipped CSVs)",
+            "source": "revenue.near.org monthly net + daily revenue series "
+                      "+ DefiLlama daily fees/volume (shipped CSVs)",
         })
 
     # ---- F3: HSP-029 not live by mid-2027 --------------------------------

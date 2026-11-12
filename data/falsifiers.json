@@ -1,5 +1,5 @@
 {
- "generated_at_utc": "2026-11-12T04:47:11.386607+00:00",
+ "generated_at_utc": "2026-11-12T06:04:26.884509+00:00",
  "data_as_of": "2026-11-10",
  "falsifiers": [
   {
@@ -17,16 +17,16 @@
    "name": "Take < 3 bps or capture < 15% (60d)",
    "threshold": "take < 3 bps OR capture < 15%",
    "reading": {
-    "take_bps": 4.836576702686946,
-    "capture_pct": 29.462659285998228,
-    "net_60d_usd": 4108803.8333333335,
+    "take_bps": 5.354990113966242,
+    "capture_pct": 32.62064449841689,
+    "net_60d_usd": 4549210.166666667,
     "gross_60d_usd": 13945801.0,
     "volume_60d_usd": 8495272764.0
    },
-   "reading_text": "take 4.84 bps, capture 29.5% over 2026-09-12..2026-11-10",
+   "reading_text": "take 5.35 bps, capture 32.6% over 2026-09-12..2026-11-10",
    "status": "not_triggered",
-   "evidence": "Net 60d $4.11M (monthly net pro-rated: Sep 26 (19/30d); Oct 26 (31/31d); Nov 26 (10/30d)); gross 60d $13.95M; volume 60d $8.50B.",
-   "source": "revenue.near.org monthly net + DefiLlama daily fees/volume (shipped CSVs)"
+   "evidence": "Net 60d $4.55M (monthly net pro-rated: Sep 26 (19/30d); Oct 26 (31/31d); Nov 26 (10d of MTD, daily series)); gross 60d $13.95M; volume 60d $8.50B.",
+   "source": "revenue.near.org monthly net + daily revenue series + DefiLlama daily fees/volume (shipped CSVs)"
   },
   {
    "id": "F3",

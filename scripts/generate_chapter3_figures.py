@@ -362,7 +362,16 @@ def fig4():
     try:
         act = get("https://api.nearblocks.io/v1/charts", timeout=45)["charts"]
     except Exception as exc:
-        print(f"fig4: NearBlocks unreachable ({exc}) — using PDF fallback values")
+        prev = OUT / "fig4_l1_contraction.png"
+        if prev.exists():
+            # Offline run must not overwrite a good figure with PDF
+            # fallback values: fail loudly so rebuild.sh keeps the
+            # previous figure instead.
+            print(f"fig4: NearBlocks unreachable ({exc}) — keeping previous figure",
+                  file=sys.stderr)
+            raise
+        print(f"fig4: NearBlocks unreachable ({exc}) — using PDF fallback values "
+              f"(no previous figure)", file=sys.stderr)
         return _fig4_fallback()
     rows = []
     for x in act:
@@ -524,7 +533,16 @@ def main():
             print(f"FAILED {name}: {exc}", file=sys.stderr)
     for name, _ in jobs:
         p = OUT / name
-        print(("OK   " if p.exists() else "MISS "), p, p.stat().st_size if p.exists() else "")
+        if name in failed:
+            # Never print OK for a file this run did not generate: a stale
+            # file still on disk is KEPT, not OK.
+            if p.exists():
+                print(f"KEPT  {p} {p.stat().st_size} (previous file, not regenerated)",
+                      file=sys.stderr)
+            else:
+                print(f"MISS  {p}", file=sys.stderr)
+        else:
+            print("OK   ", p, p.stat().st_size if p.exists() else "")
     if CAPTIONS:
         emit_captions(CAPTIONS)
     if failed:

@@ -237,8 +237,17 @@ def main() -> int:
     take_rates_bps = [int(b) for b in cfg["fee"]["take_rates_bps"]]
     base_bps = int(cfg["fee"]["base_take_rate_bps"])
     capture_rate = float(cfg["fee"]["capture_rate"])
-    if capture_rate == 0.26:
-        # Default value ships as a placeholder until measured.
+    if base_bps not in take_rates_bps:
+        # Fail fast: the summary print at the end indexes the fee table by
+        # base_bps, so a base outside the grid would crash AFTER the outputs
+        # are written — a confusing late failure for a config typo.
+        print(f"model: ERROR - base_take_rate_bps ({base_bps}) is not in "
+              f"take_rates_bps ({take_rates_bps}); add it to the grid in "
+              f"model/config.yaml.", file=sys.stderr)
+        return 1
+    if cfg["fee"].get("capture_rate_is_placeholder", False):
+        # Explicit flag in model/config.yaml (not a magic number): set it
+        # to true whenever capture_rate is an unmeasured assumption.
         placeholder_inputs.append("fee capture rate")
     years = int(cfg["projection_years"])
 

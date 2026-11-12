@@ -143,7 +143,7 @@ color:var(--ink-soft);font-size:.85rem}
 </header>
 
 <div class="page">
-<div class="box falsifier"><strong>Placeholder notice.</strong> The model is running on placeholder inputs (fee capture rate, total NEAR supply). Every figure below is marked "—" or "placeholder" until real data lands. Nothing here is a finding yet.</div>
+
 <section id="where-things-stand">
   <div class="sec-kicker">Snapshot</div>
   <h2 class="sec-title">Where Things Stand</h2>
@@ -191,8 +191,8 @@ color:var(--ink-soft);font-size:.85rem}
     <table>
       <tr><th>Metric</th><th class="num">Value</th></tr>
       <tr><td>Daily Intents volume</td><td class="num">$125.3M</td></tr>
-      <tr><td>Fee capture rate (share of gross fees reaching NEAR)</td><td class="num">26.0%</td></tr>
-      <tr><td>Deflationary threshold (daily volume, base 10 bps)</td><td class="num">$1.3B</td></tr>
+      <tr><td>Fee capture rate (share of gross fees reaching NEAR)</td><td class="num">32.6%</td></tr>
+      <tr><td>Deflationary threshold (daily volume, base 16 bps)</td><td class="num">$641.2M</td></tr>
     </table>
     <p class="muted">Values marked "—" await real data. Placeholder inputs are flagged in the model outputs.</p>
   </div>
@@ -440,28 +440,28 @@ ORDER BY 1;</pre></details>
 <section id="model">
   <div class="sec-kicker">Section 5 · Model</div>
   <h2 class="sec-title">The model</h2>
-  <p>Bottom-up: tokenomics → fee mechanism → threshold → what changes it. All assumptions in one file (<code>model/config.yaml</code>); change them and re-run <code>./rebuild.sh --model-only</code>.</p>
+  <p>Bottom-up: tokenomics → fee mechanism → threshold → what changes it. All assumptions in one file (<code>model/config.yaml</code>); change them and re-run <code>bash rebuild.sh --model-only</code>.</p>
   <div class="flow"><span>Tokenomics</span><b>→</b><span>Fee mechanism</span><b>→</b><span>Deflationary threshold</span><b>→</b><span>What changes it</span></div>
   <div class="box">
     <h3>Deflationary threshold</h3>
-<div class="big-num">$1.3B<span class="big-unit"> / day</span></div><p>Daily Intents volume at which buybacks offset new issuance (at the base fee take rate of 10 bps). Price-dependent: the higher the NEAR price, the further the threshold.</p><ul><li>5 bps → <strong>$2.6B</strong> / day</li><li>10 bps → <strong>$1.3B</strong> / day</li><li>20 bps → <strong>$637.6M</strong> / day</li></ul><p class='warn'>Placeholder — computed from placeholder inputs (see list below). Do not cite until inputs are real data.</p>
+<div class="big-num">$641.2M<span class="big-unit"> / day</span></div><p>Daily Intents volume at which buybacks offset new issuance (at the base fee take rate of 16 bps). Price-dependent: the higher the NEAR price, the further the threshold.</p><ul><li>5 bps → <strong>$2.1B</strong> / day</li><li>10 bps → <strong>$1.0B</strong> / day</li><li>16 bps → <strong>$641.2M</strong> / day</li><li>20 bps → <strong>$513.0M</strong> / day</li></ul>
   </div>
   <div class="box">
-    <h3>Scenario table — year 5 (base fee take rate 10 bps)</h3>
+    <h3>Scenario table — year 5 (base fee take rate 16 bps)</h3>
     <table>
       <tr><th>Scenario</th><th>Growth</th><th class="num">Annual settlement volume</th><th class="num">Annual fee revenue</th><th>What would have to be true</th></tr>
-<tr><td><strong>Bear</strong></td><td>0% / yr</td><td>$45.7B</td><td>$45.7M</td><td>Intents volume flat; no new chains or solvers; on-chain activity keeps falling.</td></tr>
-<tr><td><strong>Base</strong></td><td>15% / yr</td><td>$92.0B</td><td>$92.0M</td><td>Intents volume grows with cross-chain demand; on-chain activity holds; fee capture stable.</td></tr>
-<tr><td><strong>Bull</strong></td><td>30% / yr</td><td>$169.8B</td><td>$169.8M</td><td>Intents becomes the default cross-chain rail; agent-economy volume adds a second leg.</td></tr>
+<tr><td><strong>Bear</strong></td><td>0% / yr</td><td>$45.7B</td><td>$73.2M</td><td>Intents volume flat; no new chains or solvers; on-chain activity keeps falling.</td></tr>
+<tr><td><strong>Base</strong></td><td>15% / yr</td><td>$92.0B</td><td>$147.1M</td><td>Intents volume grows with cross-chain demand; on-chain activity holds; fee capture stable.</td></tr>
+<tr><td><strong>Bull</strong></td><td>30% / yr</td><td>$169.8B</td><td>$271.6M</td><td>Intents becomes the default cross-chain rail; agent-economy volume adds a second leg.</td></tr>
     </table>
   </div>
   <div class="box">
     <h3>Sensitivity — annual fee revenue, year 5 (fee take rate × growth)</h3>
     <table>
-<tr><th>Growth</th><th>5 bps</th><th>10 bps</th><th>20 bps</th></tr>
-<tr><td><strong>0% / yr</strong></td><td>$22.9M</td><td>$45.7M</td><td>$91.4M</td></tr>
-<tr><td><strong>15% / yr</strong></td><td>$46.0M</td><td>$92.0M</td><td>$183.9M</td></tr>
-<tr><td><strong>30% / yr</strong></td><td>$84.9M</td><td>$169.8M</td><td>$339.5M</td></tr>
+<tr><th>Growth</th><th>5 bps</th><th>10 bps</th><th>16 bps</th><th>20 bps</th></tr>
+<tr><td><strong>0% / yr</strong></td><td>$22.9M</td><td>$45.7M</td><td>$73.2M</td><td>$91.4M</td></tr>
+<tr><td><strong>15% / yr</strong></td><td>$46.0M</td><td>$92.0M</td><td>$147.1M</td><td>$183.9M</td></tr>
+<tr><td><strong>30% / yr</strong></td><td>$84.9M</td><td>$169.8M</td><td>$271.6M</td><td>$339.5M</td></tr>
     </table>
   </div>
   <div class="box">
@@ -484,7 +484,7 @@ ORDER BY 1;</pre></details>
     <h3>No price target</h3>
     <p>This model does <strong>not</strong> output a NEAR price target. A price target from Intents volume alone would need a valuation multiple too far removed from the data — an assumption dressed up as a conclusion. What it outputs is volume and fee revenue under stated scenarios, and the volume threshold at which issuance is offset. Anyone who wants a price target must supply their own multiple, openly, in <code>model/config.yaml</code>.</p>
   </div>
-  <p><code>./rebuild.sh --model-only</code> — re-run the model from the shipped CSVs, no credentials needed.</p>
+  <p><code>bash rebuild.sh --model-only</code> — re-run the model from the shipped CSVs, no credentials needed.</p>
 </section>
 
 <section id="evidence">
@@ -521,8 +521,8 @@ ORDER BY 1;</pre></details>
   <h2 class="sec-title">Methodology &amp; sources</h2>
   <div class="box">
     <h3>Status &amp; data freshness</h3>
-<p><strong>MAX(block_date) in BigQuery: 2026-11-11.</strong> NEAR Lake was deprecated 24 Mar 2026 — if this date is months old, the on-chain leg cannot speak about current usage.</p>
-    <p class="muted">Dashboard generated: 2026-11-12 04:47 UTC. Rebuild any time with <code>./rebuild.sh</code> — the same page shows fresher data.</p>
+<p><strong>MAX(block_date) in BigQuery: 2026-11-11.</strong> The on-chain leg is only as fresh as this date — if it is months old, it cannot speak about current usage.</p>
+    <p class="muted">Dashboard generated: 2026-11-12 06:04 UTC. Rebuild any time with <code>bash rebuild.sh</code> — the same page shows fresher data.</p>
   </div>
   <div class="box">
     <h3>Sources</h3>
@@ -548,7 +548,7 @@ ORDER BY 1;</pre></details>
 
 <footer>
   <p><strong>NEAR Protocol — Beyond the Price.</strong> Investment thesis by 0xrard, NEAR Hackathon 2026 (track: Investment Thesis).</p>
-  <p>Reproduce everything: <code>git clone &lt;repo&gt; &amp;&amp; ./rebuild.sh --model-only</code> (no credentials) or <code>./rebuild.sh</code> (full rebuild, needs GCP + Intents JWT in <code>.env</code>). Queries in <code>queries/</code>, raw data in <code>data/</code> (with source + pull date in <code>manifest.json</code>), model in <code>model/</code>.</p>
+  <p>Reproduce everything: <code>git clone &lt;repo&gt; &amp;&amp; bash rebuild.sh --model-only</code> (no credentials) or <code>bash rebuild.sh</code> (full rebuild, needs GCP + Intents JWT in <code>.env</code>). Queries in <code>queries/</code>, raw data in <code>data/</code> (with source + pull date in <code>manifest.json</code>), model in <code>model/</code>.</p>
   <p>Not financial advice. Not a price prediction. Judged on the evidence, not the conviction.</p>
 </footer>
 </div>

@@ -559,7 +559,7 @@ def build() -> None:
     elif not outputs:
         placeholder_banner = (
             '<div class="box falsifier"><strong>Placeholder notice.</strong> '
-            'No model outputs yet — run <code>./rebuild.sh --model-only</code>. '
+            'No model outputs yet — run <code>bash rebuild.sh --model-only</code>. '
             'Every figure below is "—" until real data lands.</div>'
         )
 
@@ -651,13 +651,12 @@ def build() -> None:
     if fresh_rows:
         max_date = fresh_rows[0].get("max_block_date", "—")
         freshness = (f"<p><strong>MAX(block_date) in BigQuery: {html.escape(str(max_date))}.</strong> "
-                     f"NEAR Lake was deprecated 24 Mar 2026 — if this date is months old, "
-                     f"the on-chain leg cannot speak about current usage.</p>")
+                     f"The on-chain leg is only as fresh as this date — if it is months old, "
+                     f"it cannot speak about current usage.</p>")
     else:
         freshness = ("<p><strong>Freshness not yet checked.</strong> Run "
-                     "<code>queries/00-freshness.sql</code> (or <code>./rebuild.sh</code>) — "
-                     "NEAR Lake was deprecated 24 Mar 2026, so MAX(block_date) is the first "
-                     "thing to verify on every run.</p>")
+                     "<code>queries/00-freshness.sql</code> (or <code>bash rebuild.sh</code>) — "
+                     "MAX(block_date) is the first thing to verify on every run.</p>")
 
     # ---- model values ----
     pf = outputs.get("p_to_fees") if outputs else None
@@ -771,7 +770,7 @@ def build() -> None:
 <section id="model">
   <div class="sec-kicker">Section 5 · Model</div>
   <h2 class="sec-title">The model</h2>
-  <p>Bottom-up: tokenomics → fee mechanism → threshold → what changes it. All assumptions in one file (<code>model/config.yaml</code>); change them and re-run <code>./rebuild.sh --model-only</code>.</p>
+  <p>Bottom-up: tokenomics → fee mechanism → threshold → what changes it. All assumptions in one file (<code>model/config.yaml</code>); change them and re-run <code>bash rebuild.sh --model-only</code>.</p>
   <div class="flow"><span>Tokenomics</span><b>→</b><span>Fee mechanism</span><b>→</b><span>Deflationary threshold</span><b>→</b><span>What changes it</span></div>
   <div class="box">
     <h3>Deflationary threshold</h3>
@@ -808,7 +807,7 @@ def build() -> None:
     <h3>No price target</h3>
     <p>This model does <strong>not</strong> output a NEAR price target. A price target from Intents volume alone would need a valuation multiple too far removed from the data — an assumption dressed up as a conclusion. What it outputs is volume and fee revenue under stated scenarios, and the volume threshold at which issuance is offset. Anyone who wants a price target must supply their own multiple, openly, in <code>model/config.yaml</code>.</p>
   </div>
-  <p><code>./rebuild.sh --model-only</code> — re-run the model from the shipped CSVs, no credentials needed.</p>
+  <p><code>bash rebuild.sh --model-only</code> — re-run the model from the shipped CSVs, no credentials needed.</p>
 </section>
 
 <section id="evidence">
@@ -846,7 +845,7 @@ def build() -> None:
   <div class="box">
     <h3>Status &amp; data freshness</h3>
 {freshness}
-    <p class="muted">Dashboard generated: {generated}. Rebuild any time with <code>./rebuild.sh</code> — the same page shows fresher data.</p>
+    <p class="muted">Dashboard generated: {generated}. Rebuild any time with <code>bash rebuild.sh</code> — the same page shows fresher data.</p>
   </div>
   <div class="box">
     <h3>Sources</h3>
@@ -872,7 +871,7 @@ def build() -> None:
 
 <footer>
   <p><strong>NEAR Protocol — Beyond the Price.</strong> Investment thesis by 0xrard, NEAR Hackathon 2026 (track: Investment Thesis).</p>
-  <p>Reproduce everything: <code>git clone &lt;repo&gt; &amp;&amp; ./rebuild.sh --model-only</code> (no credentials) or <code>./rebuild.sh</code> (full rebuild, needs GCP + Intents JWT in <code>.env</code>). Queries in <code>queries/</code>, raw data in <code>data/</code> (with source + pull date in <code>manifest.json</code>), model in <code>model/</code>.</p>
+  <p>Reproduce everything: <code>git clone &lt;repo&gt; &amp;&amp; bash rebuild.sh --model-only</code> (no credentials) or <code>bash rebuild.sh</code> (full rebuild, needs GCP + Intents JWT in <code>.env</code>). Queries in <code>queries/</code>, raw data in <code>data/</code> (with source + pull date in <code>manifest.json</code>), model in <code>model/</code>.</p>
   <p>Not financial advice. Not a price prediction. Judged on the evidence, not the conviction.</p>
 </footer>
 </div>

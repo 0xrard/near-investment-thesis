@@ -49,7 +49,13 @@ def load_dotenv(path: Path) -> dict:
         if not line or line.startswith("#") or "=" not in line:
             continue
         key, value = line.split("=", 1)
-        env[key.strip()] = value.strip().strip('"').strip("'")
+        value = value.strip().strip('"').strip("'")
+        if not value:
+            # Empty means unset: never carry an empty string into env.
+            # (An empty GOOGLE_APPLICATION_CREDENTIALS would make Google's
+            # auth library fail on a file named "" instead of ADC fallback.)
+            continue
+        env[key.strip()] = value
     return env
 
 
@@ -315,7 +321,16 @@ def fetch_bigquery(env: dict, manifest: dict) -> None:
             "     `gcloud auth application-default login`."
         )
     print(f"[bigquery] project={project} ...")
-    client = bigquery.Client(project=project, location="US")
+    try:
+        client = bigquery.Client(project=project, location="US")
+    except Exception as exc:  # noqa: BLE001 - credential discovery fails many ways
+        raise MissingCredential(
+            "BigQuery client could not authenticate.\n"
+            f"  -> Underlying error: {exc}\n"
+            "     Set GOOGLE_APPLICATION_CREDENTIALS to a service-account JSON key,\n"
+            "     or run `gcloud auth application-default login`,\n"
+            "     or run with --allow-partial to skip the BigQuery leg."
+        ) from exc
     sql_files = [ROOT / "queries" / "00-freshness.sql"] + sorted(
         (ROOT / "queries").glob("g*.sql")
     )
@@ -377,6 +392,13 @@ def main() -> int:
     DATA.mkdir(parents=True, exist_ok=True)
 
     env = {**load_dotenv(Path(args.env)), **os.environ}
+    # .env values must also reach libraries that read the process
+    # environment directly: google-cloud-bigquery reads
+    # GOOGLE_APPLICATION_CREDENTIALS from os.environ, not from this dict,
+    # so a key path set only in .env would otherwise be silently ignored.
+    # Real environment values win (setdefault); .env only fills gaps.
+    for k, v in env.items():
+        os.environ.setdefault(k, v)
     manifest = load_manifest()
     selected = [s.strip() for s in args.only.split(",") if s.strip()] or list(SOURCES)
     unknown = [s for s in selected if s not in SOURCES]
@@ -395,7 +417,7 @@ def main() -> int:
                 continue
             print(f"\n[{name}] FAILED — missing credentials/config:\n{e}\n")
             print("Fix it, or run with --allow-partial to skip this source, "
-                  "or ./rebuild.sh --model-only to rebuild from shipped CSVs.")
+                  "or bash rebuild.sh --model-only to rebuild from shipped CSVs.")
             return 1
         except FetchError as e:
             if args.allow_partial:

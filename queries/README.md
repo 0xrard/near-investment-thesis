@@ -7,15 +7,17 @@ Docs: https://docs.near.org/data-infrastructure/big-query
 
 - **Every query filters on `block_date`.** The tables are partitioned by
   it; filtering keeps the bill small (free tier: 1 TB/month).
-- Run `00-freshness.sql` FIRST, on every run. NEAR Lake (the AWS S3
-  source) was deprecated on 24 March 2026 and no longer indexes new
-  blocks. If `MAX(block_date)` is months old, the on-chain leg cannot
-  speak about current usage — the dashboard says so, and the Intents API
-  becomes the fresh leg.
+- Run `00-freshness.sql` FIRST, on every run. It returns `MAX(block_date)`
+  for the dataset. (An older draft warned NEAR Lake was deprecated on
+  24 March 2026 and might stop indexing new blocks; that warning is
+  outdated — `MAX(block_date)` was 2026-11-11 when checked live on
+  12 Nov 2026, so the dataset is still updating.) If `MAX(block_date)` is
+  months old, the on-chain leg cannot speak about current usage — the
+  dashboard says so, and the Intents API becomes the fresh leg.
 - Column names follow docs.near.org's example queries. `execution_outcomes`
-  column names in `g6` are the lakehouse silver schema (`outcome_status`,
-  `gas_burnt`) — verify them in the BigQuery console **Schema** tab on
-  first run and correct the file if they differ.
+  in `g6` uses the verified column `status` (not `outcome_status` as the
+  draft assumed) — confirmed via INFORMATION_SCHEMA on 12 Nov 2026;
+  `queries/g6-outcomes.sql` already uses it.
 
 ## Files
 

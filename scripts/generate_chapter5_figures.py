@@ -398,7 +398,16 @@ def main():
             print(f"FAILED {name}: {exc}", file=sys.stderr)
     for name, _ in jobs:
         p = OUT / name
-        print(("OK   " if p.exists() else "MISS "), p, p.stat().st_size if p.exists() else "")
+        if name in failed:
+            # Never print OK for a file this run did not generate: a stale
+            # file still on disk is KEPT, not OK.
+            if p.exists():
+                print(f"KEPT  {p} {p.stat().st_size} (previous file, not regenerated)",
+                      file=sys.stderr)
+            else:
+                print(f"MISS  {p}", file=sys.stderr)
+        else:
+            print("OK   ", p, p.stat().st_size if p.exists() else "")
     if CAPTIONS:
         emit_captions(CAPTIONS)
     if failed:

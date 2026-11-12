@@ -1,27 +1,25 @@
 {
-  "generated_at_utc": "2026-11-12T04:46:42+00:00",
-  "placeholder": true,
-  "placeholder_inputs": [
-    "fee capture rate",
-    "total NEAR supply"
-  ],
+  "generated_at_utc": "2026-11-12T06:03:51+00:00",
+  "placeholder": false,
+  "placeholder_inputs": [],
   "inputs": {
     "daily_intents_volume_usd": 125257736.13333334,
     "daily_intents_volume_source": "DefiLlama /summary/dexs (30-day average, 2026-10-12 to 2026-11-10)",
     "near_price_usd": 3.723543861613437,
     "near_price_source": "CoinGecko market_chart",
-    "total_supply_near": 1300000000.0,
-    "total_supply_source": "model/config.yaml (PLACEHOLDER)",
+    "total_supply_near": 1311421234.0,
+    "total_supply_source": "model/config.yaml",
     "issuance_annual_rate": 0.025,
     "net_issuance_2027e": 0.015,
     "net_issuance_2027e_note": "Nino's estimate (9 Nov 2026), 2027E \u2014 verify from on-chain burn data before citing.",
     "fee_take_rates_bps": [
       5,
       10,
+      16,
       20
     ],
-    "base_take_rate_bps": 10,
-    "fee_capture_rate": 0.26,
+    "base_take_rate_bps": 16,
+    "fee_capture_rate": 0.326,
     "projection_years": 5
   },
   "hero_stats": {
@@ -40,11 +38,12 @@
   },
   "deflationary_threshold": {
     "daily_volume_usd_by_take_rate_bps": {
-      "5": 2550372507.9544086,
-      "10": 1275186253.9772043,
-      "20": 637593126.9886022
+      "5": 2051909608.3075128,
+      "10": 1025954804.1537564,
+      "16": 641221752.5960976,
+      "20": 512977402.0768782
     },
-    "annual_issuance_value_usd": 121015175.5024367,
+    "annual_issuance_value_usd": 122078362.14625546,
     "note": "Daily Intents volume at which buybacks offset new issuance. Price-dependent: the higher the NEAR price, the further the threshold. Recomputed from primary data \u2014 never copied from any published figure."
   },
   "scenarios": [
@@ -55,6 +54,7 @@
       "annual_fee_revenue_usd_by_bps": {
         "5": 22859536.844333336,
         "10": 45719073.68866667,
+        "16": 73150517.90186667,
         "20": 91438147.37733334
       },
       "what_must_be_true": "Intents volume flat; no new chains or solvers; on-chain activity keeps falling."
@@ -66,6 +66,7 @@
       "annual_fee_revenue_usd_by_bps": {
         "5": 45978693.73477091,
         "10": 91957387.46954182,
+        "16": 147131819.9512669,
         "20": 183914774.93908364
       },
       "what_must_be_true": "Intents volume grows with cross-chain demand; on-chain activity holds; fee capture stable."
@@ -77,6 +78,7 @@
       "annual_fee_revenue_usd_by_bps": {
         "5": 84875860.13543059,
         "10": 169751720.27086118,
+        "16": 271602752.43337786,
         "20": 339503440.54172236
       },
       "what_must_be_true": "Intents becomes the default cross-chain rail; agent-economy volume adds a second leg."
@@ -91,22 +93,26 @@
     "take_rates_bps": [
       5,
       10,
+      16,
       20
     ],
     "annual_fee_revenue_usd": {
       "0.0": {
         "5": 22859536.844333336,
         "10": 45719073.68866667,
+        "16": 73150517.90186667,
         "20": 91438147.37733334
       },
       "0.15": {
         "5": 45978693.73477091,
         "10": 91957387.46954182,
+        "16": 147131819.9512669,
         "20": 183914774.93908364
       },
       "0.3": {
         "5": 84875860.13543059,
         "10": 169751720.27086118,
+        "16": 271602752.43337786,
         "20": 339503440.54172236
       }
     }
