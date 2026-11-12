@@ -33,7 +33,7 @@ import json
 import math
 import statistics
 import sys
-from datetime import datetime, timezone
+from datetime import date as _date, datetime, timedelta, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -147,15 +147,31 @@ def read_series(path: Path, value_col: str):
     """Read a date,value CSV -> sorted [(date, value)] or None if missing."""
     if not path.exists():
         return None
-    rows = []
+    # One value per date. If a date appears twice (e.g. CoinGecko appends a
+    # live "now" point after the last daily point), the LAST row in the file
+    # wins. Sorting (date, value) tuples instead would pick by value, not by
+    # recency.
+    by_date = {}
     with open(path, newline="") as f:
         for row in csv.DictReader(f):
             try:
-                rows.append((row["date"], float(row[value_col])))
+                by_date[row["date"]] = float(row[value_col])
             except (KeyError, TypeError, ValueError):
                 continue
-    rows.sort()
-    return rows or None
+    return sorted(by_date.items()) or None
+
+
+def log_returns(series):
+    """{date: ln(value_t / value_{t-1 day})}, consecutive calendar days with
+    positive values only. Correlating CHANGES instead of LEVELS avoids the
+    spurious correlation two trending series show."""
+    m = dict(series)
+    out = {}
+    for d, v in series:
+        prev = (_date.fromisoformat(d) - timedelta(days=1)).isoformat()
+        if prev in m and v > 0 and m[prev] > 0:
+            out[d] = math.log(v / m[prev])
+    return out
 
 
 def read_json(path: Path):
@@ -325,6 +341,7 @@ def main() -> int:
             "annual_fee_revenue_usd_by_bps": {
                 str(bps): annual_volume_y * bps / 10000.0 for bps in take_rates_bps
             },
+            "fee_revenue_basis": "gross protocol fees (volume x take rate), before capture_rate",
             "what_must_be_true": sc["what_must_be_true"],
         })
 
@@ -358,25 +375,42 @@ def main() -> int:
     }
 
     # B: correlation of daily Intents volume vs on-chain activity.
+    # PRIMARY = Pearson r on daily log changes (volume growth vs activity
+    # growth). Levels of two trending series correlate (or anti-correlate)
+    # mostly because of their trends, so level correlations are reported
+    # separately as descriptive only.
     g1 = read_series(DATA / "bq_g1_daily_active_accounts.csv", "daily_active_signers")
     g2 = read_series(DATA / "bq_g2_tx_counts.csv", "tx_count")
     test_b = {"status": "cannot_compute", "reason": None}
     if vol_series is not None and (g1 is not None or g2 is not None):
         vol_map = dict(vol_series)
-        details = {}
+        vol_ret = log_returns(vol_series)
+        details, levels = {}, {}
         for label, series in (("active_accounts", g1), ("tx_count", g2)):
             if series is None:
                 continue
-            common = sorted(set(vol_map) & {d for d, _ in series})
             s_map = dict(series)
-            xs = [vol_map[d] for d in common]
-            ys = [s_map[d] for d in common]
+            common_l = sorted(set(vol_map) & set(s_map))
+            levels[label] = {
+                "n_days": len(common_l),
+                "pearson_r": pearson([vol_map[d] for d in common_l],
+                                     [s_map[d] for d in common_l]),
+            }
+            s_ret = log_returns(series)
+            common = sorted(set(vol_ret) & set(s_ret))
             details[label] = {
                 "n_days": len(common),
-                "pearson_r": pearson(xs, ys),
+                "pearson_r": pearson([vol_ret[d] for d in common],
+                                     [s_ret[d] for d in common]),
             }
         if any(d.get("pearson_r") is not None for d in details.values()):
-            test_b = {"status": "computed", "reason": None, "correlations": details}
+            test_b = {
+                "status": "computed",
+                "reason": None,
+                "method": "Pearson r on daily log changes (primary); levels below are descriptive only",
+                "correlations": details,
+                "correlations_levels": levels,
+            }
         else:
             test_b["reason"] = "Not enough overlapping days (<30) to compute a correlation."
     else:
@@ -388,29 +422,49 @@ def main() -> int:
         test_b["reason"] = "Missing data: " + ", ".join(missing) + "."
 
     # Lead/lag: does Intents volume lead NEAR price?
-    lead_lag = {"status": "cannot_compute", "reason": None, "lags": {}, "best_lag_days": None}
+    # PRIMARY = correlation of daily log changes (same method as fig9).
+    lead_lag = {"status": "cannot_compute", "reason": None,
+                "method": ("Pearson r of daily log changes: volume growth[t-k] vs price "
+                           "return[t]; k>0 means volume leads. Best lag chosen by |r|. "
+                           "Levels are in lags_levels (descriptive only)."),
+                "lags": {}, "lags_levels": {}, "best_lag_days": None}
     if vol_series is not None and price_series is not None:
         vol_map = dict(vol_series)
         price_map = dict(price_series)
-        price_dates = sorted(price_map)
-        from datetime import date as _date, timedelta
+        vol_ret = log_returns(vol_series)
+        px_ret = log_returns(price_series)
 
         def shift(dstr, days):
             return (_date.fromisoformat(dstr) + timedelta(days=days)).isoformat()
 
         for lag in range(-7, 8):
             # lag k > 0: volume on day (t - k) vs price on day t  =>  volume leads by k days.
-            pairs = [(vol_map[shift(d, -lag)], price_map[d])
-                     for d in price_dates if shift(d, -lag) in vol_map]
+            pairs = [(vol_ret[shift(d, -lag)], r) for d, r in px_ret.items()
+                     if shift(d, -lag) in vol_ret]
             if len(pairs) >= 30:
-                r = pearson([p[0] for p in pairs], [p[1] for p in pairs])
-                lead_lag["lags"][str(lag)] = {"n_days": len(pairs), "pearson_r": r}
+                lead_lag["lags"][str(lag)] = {
+                    "n_days": len(pairs),
+                    "pearson_r": pearson([p[0] for p in pairs], [p[1] for p in pairs]),
+                }
+            pairs_l = [(vol_map[shift(d, -lag)], price_map[d])
+                       for d in sorted(price_map) if shift(d, -lag) in vol_map]
+            if len(pairs_l) >= 30:
+                lead_lag["lags_levels"][str(lag)] = {
+                    "n_days": len(pairs_l),
+                    "pearson_r": pearson([p[0] for p in pairs_l], [p[1] for p in pairs_l]),
+                }
         valid = {int(k): v["pearson_r"] for k, v in lead_lag["lags"].items()
                  if v["pearson_r"] is not None}
         if valid:
-            best = max(valid, key=lambda k: valid[k])
-            lead_lag.update({"status": "computed", "best_lag_days": best,
-                             "best_pearson_r": valid[best]})
+            best = max(valid, key=lambda k: abs(valid[k]))
+            n_best = lead_lag["lags"][str(best)]["n_days"]
+            band = 1.96 / math.sqrt(n_best)
+            lead_lag.update({
+                "status": "computed", "best_lag_days": best,
+                "best_pearson_r": valid[best],
+                "noise_band_95": band,
+                "best_is_significant": abs(valid[best]) > band,
+            })
         else:
             lead_lag["reason"] = "Not enough overlapping days (<30) at any lag."
     else:
@@ -452,9 +506,9 @@ def main() -> int:
         "scenarios": scenarios,
         "sensitivity": sensitivity,
         "p_to_fees": p_to_fees,
-        "p_to_fees_note": ("Market cap / annualised fees. Cross-check: Nino's input "
-                           "P/F 58.8x (9 Nov 2026) matches market_cap / annualised_fees "
-                           "from the same inputs."),
+        "p_to_fees_note": ("Market cap / annualised gross fees (30d x 12). Nino's 9 Nov "
+                           "2026 dossier input (P/F 58.8x) was computed at that earlier "
+                           "date; compare only at the same date."),
         "hypothesis_tests": {
             "A_sticky": test_a,
             "B_additive": test_b,
