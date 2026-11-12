@@ -46,6 +46,14 @@ Docs: https://docs.near.org/data-infrastructure/big-query
   accounts) that the dashboard draws as the context line; the join of
   the three series happens in `scripts/build_dashboard.py`.
 
+## What `scripts/fetch.py` actually runs
+
+`fetch.py` uses an explicit job list, not a glob: `00-freshness`, `g1`, `g2`,
+`g3-contract-usage-lean`, `g6-outcomes-lean`. The full `g3` (365-day join,
+~2.4 TB) is kept for reference / the BigQuery console but exceeds the free
+quota. `g4` is a placeholder (needs verified Intents contract addresses) and
+`g5` duplicates `g2`, so neither is fetched.
+
 ## How to run
 
 BigQuery console, or via `scripts/fetch.py` (needs `GCP_PROJECT_ID` +
