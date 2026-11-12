@@ -66,12 +66,13 @@ queries/                one BigQuery SQL file per chart (G1-G6) + freshness chec
 data/                   raw CSVs (shipped, with source + pull date in manifest.json) + model outputs
 scripts/
   fetch.py              pulls BigQuery / Intents API / CoinGecko / DefiLlama -> data/
-  build_dashboard.py    builds dashboard/index.html from data/ + model outputs
+  build_dashboard.py    builds dashboard/index-generated.html from data/ + model outputs
 model/
   config.yaml           ALL model assumptions in one file (fee take rate, growth, issuance)
   model.py              scenario model + deflationary-threshold recomputation + hypothesis tests
 dashboard/
-  index.html            static dashboard (GitHub Pages) — generated, do not edit by hand
+  index.html            thesis page served by GitHub Pages — frozen 11 Nov 2026 snapshot; rebuild never overwrites it
+  index-generated.html  regenerated dashboard from the pipeline (data/ + model outputs)
 rebuild.sh              ONE command: fetch -> model -> build dashboard
 .env.example            credential placeholders (no real values)
 ```

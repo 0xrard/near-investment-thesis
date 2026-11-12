@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Build dashboard/index.html from data/ + model outputs.
+"""Build dashboard/index-generated.html from data/ + model outputs.
+
+NOTE: dashboard/index.html is the frozen thesis page (11 Nov 2026 snapshot)
+served by GitHub Pages. This script deliberately writes to
+index-generated.html so a rebuild never overwrites the served page.
 
 Static page — no JavaScript, no API calls at view time. Charts render from
 shipped CSVs when present; otherwise they render as clearly-labelled
@@ -17,7 +21,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "data"
 QUERIES = ROOT / "queries"
-OUT = ROOT / "dashboard" / "index.html"
+OUT = ROOT / "dashboard" / "index-generated.html"
 
 ACCENT = "#E07856"
 MUTED = "#9a9a9a"

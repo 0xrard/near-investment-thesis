@@ -56,4 +56,4 @@ echo "== [4/4] Building dashboard =="
 python3 scripts/build_dashboard.py
 
 echo ""
-echo "Done: dashboard/index.html"
+echo "Done: dashboard/index-generated.html (thesis page dashboard/index.html untouched)"
