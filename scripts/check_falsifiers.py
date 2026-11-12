@@ -365,7 +365,7 @@ def main():
             "reading": {"take_bps": take_bps, "capture_pct": capture,
                         "net_60d_usd": net60, "gross_60d_usd": gross60,
                         "volume_60d_usd": vol60},
-            "reading_text": f"take {take_bps:.2f} bps, capture "
+            "reading_text": f"take {take_bps:.2f} bps (net), capture "
                             f"{capture:.1f}% over {start}..{end}",
             "status": "triggered" if triggered else "not_triggered",
             "evidence": f"Net 60d {usd(net60)} (monthly net pro-rated: "
