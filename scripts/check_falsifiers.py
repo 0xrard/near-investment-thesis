@@ -13,7 +13,10 @@ Statuses:
   triggered          - measured, threshold breached (downgrades the thesis)
   not_yet_decidable  - a deadline check whose date has not arrived yet
   cannot_check       - the data needed to evaluate it does not exist in-repo
-                       (and, for F5, has no public endpoint at all)
+                       (and, for F5, has no public endpoint at all); also F4
+                       when its snapshot is invalid or older than
+                       F4_MAX_SNAPSHOT_AGE_DAYS (a stale snapshot must not
+                       keep reporting "not triggered")
 
 A triggered falsifier is a FINDING, not a build error: this script always
 exits 0 when it produces a report. It exits 1 only on an internal error
@@ -187,6 +190,101 @@ def usd(x):
     return f"${x:,.0f}"
 
 
+F4_MAX_SNAPSHOT_AGE_DAYS = 30  # = the F4 window: an older snapshot no longer overlaps the current 30d
+
+
+def _f4_unavailable(reading_text, evidence, source):
+    return {
+        "id": "F4",
+        "name": "Buyback-wallet outflow > 5% / 30d",
+        "threshold": "outflow > 5% of balance in 30d",
+        "reading": None,
+        "reading_text": reading_text,
+        "status": "cannot_check",
+        "evidence": evidence,
+        "source": source,
+    }
+
+
+def evaluate_f4(snap, now_utc):
+    """F4 from the buyback-wallet snapshot. Returns cannot_check (never a
+    silent not_triggered) when the snapshot is missing, malformed, has a
+    zero/invalid balance, or is older than F4_MAX_SNAPSHOT_AGE_DAYS."""
+    if not (isinstance(snap, dict) and "outbound_near_total" in snap
+            and "balance_near" in snap):
+        return _f4_unavailable(
+            "cannot compute: no buyback-wallet snapshot",
+            "No data/buyback_wallet_30d.json in this repo. Evaluating the "
+            "falsifier needs the buyback wallet address + a 30-day flow "
+            "history (Nearblocks).",
+            "none (snapshot missing)")
+    try:
+        out_near = float(snap["outbound_near_total"])
+        bal = float(snap["balance_near"])
+    except (TypeError, ValueError):
+        return _f4_unavailable(
+            "cannot compute: snapshot values are not numeric",
+            "outbound_near_total / balance_near in data/buyback_wallet_30d.json "
+            "must be numbers.",
+            snap.get("source", "data/buyback_wallet_30d.json"))
+    if not bal > 0:
+        return _f4_unavailable(
+            "cannot compute: snapshot balance is zero or invalid",
+            "balance_near must be > 0 to express the outflow as a share of "
+            "the balance.",
+            snap.get("source", "data/buyback_wallet_30d.json"))
+    checked = snap.get("checked_at_utc")
+    try:
+        ts = datetime.datetime.fromisoformat(str(checked))
+        if ts.tzinfo is None:
+            ts = ts.replace(tzinfo=datetime.timezone.utc)
+    except ValueError:
+        return _f4_unavailable(
+            "cannot compute: snapshot has no valid checked_at_utc",
+            "checked_at_utc must be an ISO-8601 timestamp so the snapshot "
+            "age can be verified.",
+            snap.get("source", "data/buyback_wallet_30d.json"))
+    age_days = (now_utc - ts).total_seconds() / 86400
+    if age_days > F4_MAX_SNAPSHOT_AGE_DAYS:
+        return _f4_unavailable(
+            f"snapshot stale: checked {str(checked)[:10]} "
+            f"({age_days:.0f} days old, limit {F4_MAX_SNAPSHOT_AGE_DAYS})",
+            "F4 is a trailing-30-day flow reading; a snapshot older than "
+            f"{F4_MAX_SNAPSHOT_AGE_DAYS} days is not evidence about the "
+            "current window. Refresh data/buyback_wallet_30d.json "
+            "(see data/README.md).",
+            snap.get("source", "data/buyback_wallet_30d.json"))
+
+    thr = float(snap.get("threshold_near", bal * 0.05))
+    pct = out_near / bal * 100
+    in_n = snap.get("inbound_count", "?")
+    in_near = snap.get("inbound_near_total", "?")
+    in_near_txt = (f"{in_near:,.2f}"
+                   if isinstance(in_near, (int, float)) else str(in_near))
+    in_from = ", ".join(snap.get("inbound_counterparties", {}).keys()) or "?"
+    recv_n = snap.get("receipts_examined", "?")
+    return {
+        "id": "F4",
+        "name": "Buyback-wallet outflow > 5% / 30d",
+        "threshold": "outflow > 5% of balance in 30d",
+        "reading": {"outflow_near": out_near, "balance_near": bal,
+                    "outflow_pct": pct, "threshold_near": thr,
+                    "receipts_examined": recv_n,
+                    "inbound_near_total": in_near},
+        "reading_text": f"outflow {out_near:,.2f} NEAR "
+                        f"({pct:.4f}% of {bal:,.2f} NEAR balance) over "
+                        f"{str(snap.get('window_start_utc', '?'))[:10]}.."
+                        f"{str(snap.get('window_end_utc', '?'))[:10]}",
+        "status": "triggered" if pct > 5 else "not_triggered",
+        "evidence": f"{recv_n} receipts examined ({in_n} inbound, "
+                    f"{in_near_txt} NEAR from {in_from}; "
+                    f"{snap.get('outbound_count', '?')} outbound). "
+                    f"Snapshot checked {checked}. Counts native NEAR "
+                    f"(action deposits) only, not token transfers.",
+        "source": snap.get("source", "data/buyback_wallet_30d.json"),
+    }
+
+
 def main():
     today = datetime.date.today()
     now_utc = datetime.datetime.now(datetime.timezone.utc)
@@ -311,55 +409,11 @@ def main():
     # fetch; the fetch itself is NOT part of the rebuild). No live API call
     # here, so rebuild.sh stays deterministic offline. Without a valid
     # snapshot, fall back to cannot_check.
-    snap = None
     try:
         snap = json.loads((DATA / "buyback_wallet_30d.json").read_text())
     except Exception:
         snap = None
-    if (isinstance(snap, dict) and "outbound_near_total" in snap
-            and "balance_near" in snap):
-        out_near = float(snap["outbound_near_total"])
-        bal = float(snap["balance_near"])
-        thr = float(snap.get("threshold_near", bal * 0.05))
-        pct = out_near / bal * 100 if bal else float("nan")
-        in_n = snap.get("inbound_count", "?")
-        in_near = snap.get("inbound_near_total", "?")
-        in_near_txt = (f"{in_near:,.2f}"
-                       if isinstance(in_near, (int, float)) else str(in_near))
-        in_from = ", ".join(snap.get("inbound_counterparties", {}).keys()) or "?"
-        recv_n = snap.get("receipts_examined", "?")
-        results.append({
-            "id": "F4",
-            "name": "Buyback-wallet outflow > 5% / 30d",
-            "threshold": "outflow > 5% of balance in 30d",
-            "reading": {"outflow_near": out_near, "balance_near": bal,
-                        "outflow_pct": pct, "threshold_near": thr,
-                        "receipts_examined": recv_n,
-                        "inbound_near_total": in_near},
-            "reading_text": f"outflow {out_near:,.2f} NEAR "
-                            f"({pct:.4f}% of {bal:,.2f} NEAR balance) over "
-                            f"{str(snap.get('window_start_utc', '?'))[:10]}.."
-                            f"{str(snap.get('window_end_utc', '?'))[:10]}",
-            "status": "triggered" if pct > 5 else "not_triggered",
-            "evidence": f"{recv_n} receipts examined ({in_n} inbound, "
-                        f"{in_near_txt} NEAR from {in_from}; "
-                        f"{snap.get('outbound_count', '?')} outbound). "
-                        f"Snapshot checked {snap.get('checked_at_utc', '?')}.",
-            "source": snap.get("source", "data/buyback_wallet_30d.json"),
-        })
-    else:
-        results.append({
-            "id": "F4",
-            "name": "Buyback-wallet outflow > 5% / 30d",
-            "threshold": "outflow > 5% of balance in 30d",
-            "reading": None,
-            "reading_text": "cannot compute: no buyback-wallet snapshot",
-            "status": "cannot_check",
-            "evidence": "No data/buyback_wallet_30d.json in this repo. "
-                        "Evaluating the falsifier needs the buyback wallet "
-                        "address + a 30-day flow history (Nearblocks).",
-            "source": "none (snapshot missing)",
-        })
+    results.append(evaluate_f4(snap, now_utc))
 
     # ---- F5: ETF outflows 4+ weeks ---------------------------------------
     results.append({
