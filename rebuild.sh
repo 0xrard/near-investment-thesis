@@ -17,6 +17,21 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
+# Python 3.10+ is required (README, Level 2). Fail fast with a clear
+# message instead of a confusing traceback halfway through the build.
+if ! python3 -c 'import sys; sys.exit(0 if sys.version_info >= (3, 10) else 1)' 2>/dev/null; then
+  echo "rebuild.sh needs Python 3.10+ (found: $(python3 --version 2>&1 || echo 'no python3'))." >&2
+  echo "Install Python 3.10+ and re-run." >&2
+  exit 1
+fi
+
+# The figure scripts and the falsifier checker are required files: if one is
+# missing the repo is incomplete, and that must fail loudly — not hide as a
+# WARNING that silently leaves stale figures/falsifiers behind.
+for f in scripts/generate_chapter3_figures.py scripts/generate_chapter4_figures.py scripts/generate_chapter5_figures.py scripts/check_falsifiers.py; do
+  [ -f "$f" ] || { echo "Missing required script: $f — the repo copy is incomplete; re-download it." >&2; exit 1; }
+done
+
 usage() {
   echo "Usage: bash rebuild.sh [--model-only]"
   echo "  (no args)    full rebuild: fetch -> model -> figures -> build dashboard -> check falsifiers"

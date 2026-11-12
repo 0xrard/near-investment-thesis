@@ -1,0 +1,210 @@
+{
+  "generated_at_utc": "2026-11-12T06:03:51+00:00",
+  "placeholder": false,
+  "placeholder_inputs": [],
+  "inputs": {
+    "daily_intents_volume_usd": 125257736.13333334,
+    "daily_intents_volume_source": "DefiLlama /summary/dexs (30-day average, 2026-10-12 to 2026-11-10)",
+    "near_price_usd": 3.723543861613437,
+    "near_price_source": "CoinGecko market_chart",
+    "total_supply_near": 1311421234.0,
+    "total_supply_source": "model/config.yaml",
+    "issuance_annual_rate": 0.025,
+    "net_issuance_2027e": 0.015,
+    "net_issuance_2027e_note": "Nino's estimate (9 Nov 2026), 2027E \u2014 verify from on-chain burn data before citing.",
+    "fee_take_rates_bps": [
+      5,
+      10,
+      16,
+      20
+    ],
+    "base_take_rate_bps": 16,
+    "fee_capture_rate": 0.326,
+    "projection_years": 5
+  },
+  "hero_stats": {
+    "cumulative_intents_volume_usd": 37324522122.0,
+    "cumulative_intents_volume_source": "DefiLlama /summary/dexs (totalAllTime)",
+    "cumulative_intents_volume_as_of": "2026-11-11T15:06:03+00:00",
+    "annualised_fees_usd": 71529432.0,
+    "annualised_fees_definition": "Gross Intents fees, 30-day run-rate (total30d x 12)",
+    "annualised_fees_source": "DefiLlama /summary/fees (total30d x 12)",
+    "annualised_fees_as_of": "2026-11-11T15:06:04+00:00",
+    "market_cap_usd": 4882342987.0,
+    "market_cap_source": "CoinGecko /coins/near",
+    "market_cap_as_of": "2026-11-11T15:06:01+00:00",
+    "inflation_rate": 0.025,
+    "inflation_source": "Protocol parameter (5% -> 2.5% on 30 Oct 2025)"
+  },
+  "deflationary_threshold": {
+    "daily_volume_usd_by_take_rate_bps": {
+      "5": 2051909608.3075128,
+      "10": 1025954804.1537564,
+      "16": 641221752.5960976,
+      "20": 512977402.0768782
+    },
+    "annual_issuance_value_usd": 122078362.14625546,
+    "note": "Daily Intents volume at which buybacks offset new issuance. Price-dependent: the higher the NEAR price, the further the threshold. Recomputed from primary data \u2014 never copied from any published figure."
+  },
+  "scenarios": [
+    {
+      "name": "bear",
+      "annual_growth": 0.0,
+      "annual_settlement_volume_usd": 45719073688.66667,
+      "annual_fee_revenue_usd_by_bps": {
+        "5": 22859536.844333336,
+        "10": 45719073.68866667,
+        "16": 73150517.90186667,
+        "20": 91438147.37733334
+      },
+      "what_must_be_true": "Intents volume flat; no new chains or solvers; on-chain activity keeps falling."
+    },
+    {
+      "name": "base",
+      "annual_growth": 0.15,
+      "annual_settlement_volume_usd": 91957387469.54182,
+      "annual_fee_revenue_usd_by_bps": {
+        "5": 45978693.73477091,
+        "10": 91957387.46954182,
+        "16": 147131819.9512669,
+        "20": 183914774.93908364
+      },
+      "what_must_be_true": "Intents volume grows with cross-chain demand; on-chain activity holds; fee capture stable."
+    },
+    {
+      "name": "bull",
+      "annual_growth": 0.3,
+      "annual_settlement_volume_usd": 169751720270.86118,
+      "annual_fee_revenue_usd_by_bps": {
+        "5": 84875860.13543059,
+        "10": 169751720.27086118,
+        "16": 271602752.43337786,
+        "20": 339503440.54172236
+      },
+      "what_must_be_true": "Intents becomes the default cross-chain rail; agent-economy volume adds a second leg."
+    }
+  ],
+  "sensitivity": {
+    "growth_rates": [
+      0.0,
+      0.15,
+      0.3
+    ],
+    "take_rates_bps": [
+      5,
+      10,
+      16,
+      20
+    ],
+    "annual_fee_revenue_usd": {
+      "0.0": {
+        "5": 22859536.844333336,
+        "10": 45719073.68866667,
+        "16": 73150517.90186667,
+        "20": 91438147.37733334
+      },
+      "0.15": {
+        "5": 45978693.73477091,
+        "10": 91957387.46954182,
+        "16": 147131819.9512669,
+        "20": 183914774.93908364
+      },
+      "0.3": {
+        "5": 84875860.13543059,
+        "10": 169751720.27086118,
+        "16": 271602752.43337786,
+        "20": 339503440.54172236
+      }
+    }
+  },
+  "p_to_fees": 68.25642047597974,
+  "p_to_fees_note": "Market cap / annualised fees. Cross-check: Nino's input P/F 58.8x (9 Nov 2026) matches market_cap / annualised_fees from the same inputs.",
+  "hypothesis_tests": {
+    "A_sticky": {
+      "status": "cannot_compute",
+      "reason": "Swapper-level data not available: the Intents Explorer API needs a JWT (see THESIS.md \u00a78). If the API has no swapper field, this stays uncomputed."
+    },
+    "B_additive": {
+      "status": "computed",
+      "reason": null,
+      "correlations": {
+        "active_accounts": {
+          "n_days": 364,
+          "pearson_r": -0.18922103653168482
+        },
+        "tx_count": {
+          "n_days": 364,
+          "pearson_r": -0.10246742131248826
+        }
+      }
+    },
+    "lead_lag_volume_vs_price": {
+      "status": "computed",
+      "reason": null,
+      "lags": {
+        "-7": {
+          "n_days": 357,
+          "pearson_r": 0.45787263808050865
+        },
+        "-6": {
+          "n_days": 358,
+          "pearson_r": 0.45924386585043564
+        },
+        "-5": {
+          "n_days": 359,
+          "pearson_r": 0.4628590096449837
+        },
+        "-4": {
+          "n_days": 360,
+          "pearson_r": 0.47461594453919503
+        },
+        "-3": {
+          "n_days": 361,
+          "pearson_r": 0.4875448854424733
+        },
+        "-2": {
+          "n_days": 362,
+          "pearson_r": 0.5116921634547308
+        },
+        "-1": {
+          "n_days": 363,
+          "pearson_r": 0.5215106672745033
+        },
+        "0": {
+          "n_days": 364,
+          "pearson_r": 0.5180283880285329
+        },
+        "1": {
+          "n_days": 365,
+          "pearson_r": 0.526102543436574
+        },
+        "2": {
+          "n_days": 365,
+          "pearson_r": 0.5384424705363061
+        },
+        "3": {
+          "n_days": 365,
+          "pearson_r": 0.5439678529991095
+        },
+        "4": {
+          "n_days": 365,
+          "pearson_r": 0.5490194358475503
+        },
+        "5": {
+          "n_days": 365,
+          "pearson_r": 0.5436964341789225
+        },
+        "6": {
+          "n_days": 365,
+          "pearson_r": 0.5445543931929305
+        },
+        "7": {
+          "n_days": 365,
+          "pearson_r": 0.5416555335349157
+        }
+      },
+      "best_lag_days": 4,
+      "best_pearson_r": 0.5490194358475503
+    }
+  }
+}

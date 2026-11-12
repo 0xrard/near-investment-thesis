@@ -1,0 +1,78 @@
+{
+ "generated_at_utc": "2026-11-12T06:04:26.884509+00:00",
+ "data_as_of": "2026-11-10",
+ "falsifiers": [
+  {
+   "id": "F1",
+   "name": "Intents volume falls below $75M/day (30d avg)",
+   "threshold": "volume_30d_avg < $75,000,000/day",
+   "reading": 125257736.13333334,
+   "reading_text": "$125.26M/day over 2026-10-12..2026-11-10",
+   "status": "not_triggered",
+   "evidence": "30d mean of data/intents_volume_daily.csv (30 days).",
+   "source": "DefiLlama daily Intents volume (shipped CSV)"
+  },
+  {
+   "id": "F2",
+   "name": "Take < 3 bps or capture < 15% (60d)",
+   "threshold": "take < 3 bps OR capture < 15%",
+   "reading": {
+    "take_bps": 5.354990113966242,
+    "capture_pct": 32.62064449841689,
+    "net_60d_usd": 4549210.166666667,
+    "gross_60d_usd": 13945801.0,
+    "volume_60d_usd": 8495272764.0
+   },
+   "reading_text": "take 5.35 bps, capture 32.6% over 2026-09-12..2026-11-10",
+   "status": "not_triggered",
+   "evidence": "Net 60d $4.55M (monthly net pro-rated: Sep 26 (19/30d); Oct 26 (31/31d); Nov 26 (10d of MTD, daily series)); gross 60d $13.95M; volume 60d $8.50B.",
+   "source": "revenue.near.org monthly net + daily revenue series + DefiLlama daily fees/volume (shipped CSVs)"
+  },
+  {
+   "id": "F3",
+   "name": "HSP-029 not live by mid-2027",
+   "threshold": "HSP-029 not live on 30 Jun 2027",
+   "reading": null,
+   "reading_text": "deadline 2027-06-30 not reached (today 2026-11-12)",
+   "status": "not_yet_decidable",
+   "evidence": "HSP-029 passed 2 Nov 2026 (99.96%); 2.5% -> 1.6% phased over 24 months; not yet live (needs Security Council ratification + ~90-day grace + validator adoption, earliest ~Feb 2027).",
+   "source": "PDF \u00a73.3 / HSP-029 vote record"
+  },
+  {
+   "id": "F4",
+   "name": "Buyback-wallet outflow > 5% / 30d",
+   "threshold": "outflow > 5% of balance in 30d",
+   "reading": null,
+   "reading_text": "cannot compute: no wallet balance history",
+   "status": "cannot_check",
+   "evidence": "Static reference balance 2,245,764 NEAR (11 Nov 2026, PDF \u00a73.2). Evaluating the falsifier needs the buyback wallet address + a balance history; neither is in this repo.",
+   "source": "PDF \u00a73.2 (static balance only)"
+  },
+  {
+   "id": "F5",
+   "name": "ETF outflows for 4+ weeks",
+   "threshold": "net ETF outflows in 4 consecutive weeks",
+   "reading": null,
+   "reading_text": "cannot compute: no public ETF-flow endpoint",
+   "status": "cannot_check",
+   "evidence": "No ETF flow data source is wired into this repo. The PDF itself states this reading is NOT re-runnable (\"All readings re-runnable except F5\", Table 5).",
+   "source": "none (PDF Table 5: not re-runnable)"
+  },
+  {
+   "id": "F6",
+   "name": "Net-revenue run-rate not doubling in 4 quarters",
+   "threshold": "current run-rate < 2x run-rate 4 quarters ago",
+   "reading": {
+    "run_rate_now_usd": 22280176.0,
+    "run_rate_baseline_usd": 1408064.0,
+    "ratio": 15.823269396845598
+   },
+   "reading_text": "run-rate $22.28M/yr vs baseline $1.41M/yr = 15.8x",
+   "status": "not_triggered",
+   "evidence": "Last 3 complete months 2026-08..2026-10 net $5.57M (x4 annualised); baseline 2025-08..2025-10 net $352,016.",
+   "source": "revenue.near.org monthly net revenue"
+  }
+ ],
+ "triggered": [],
+ "summary": "0 of 6 falsifiers triggered: none. 3 not triggered, 1 not yet decidable, 2 cannot check."
+}
