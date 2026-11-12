@@ -2,9 +2,11 @@
 """Check the six thesis falsifiers (F1-F6, Chapter 6 / Table 5) and write
 data/falsifiers.json.
 
-Each falsifier is evaluated from the shipped data/ CSVs plus the monthly net
-revenue series scraped live from revenue.near.org (same keyless scrape the
-figure scripts use). Nothing here needs credentials, a JWT, or BigQuery.
+Each falsifier is evaluated from the shipped data/ CSVs, the buyback-wallet
+snapshot (data/buyback_wallet_30d.json, Nearblocks — see its provenance
+field; no live call is made here), plus the monthly net revenue series
+scraped live from revenue.near.org (same keyless scrape the figure scripts
+use). Nothing here needs credentials, a JWT, or BigQuery.
 
 Statuses:
   not_triggered      - measured, threshold not breached
@@ -49,7 +51,6 @@ OUT = DATA / "falsifiers.json"
 MANIFEST = DATA / "manifest.json"
 
 F3_DEADLINE = datetime.date(2027, 6, 30)
-BUYBACK_BALANCE_STATIC = 2_245_764  # NEAR, 11 Nov 2026, PDF §3.2 (static)
 
 
 def read_series(path, value_col):
@@ -306,19 +307,59 @@ def main():
         })
 
     # ---- F4: buyback outflow > 5% / 30d ----------------------------------
-    results.append({
-        "id": "F4",
-        "name": "Buyback-wallet outflow > 5% / 30d",
-        "threshold": "outflow > 5% of balance in 30d",
-        "reading": None,
-        "reading_text": "cannot compute: no wallet balance history",
-        "status": "cannot_check",
-        "evidence": f"Static reference balance {BUYBACK_BALANCE_STATIC:,} "
-                    f"NEAR (11 Nov 2026, PDF §3.2). Evaluating the falsifier "
-                    f"needs the buyback wallet address + a balance history; "
-                    f"neither is in this repo.",
-        "source": "PDF §3.2 (static balance only)",
-    })
+    # Snapshot-based: data/buyback_wallet_30d.json (Nearblocks, read-only
+    # fetch; the fetch itself is NOT part of the rebuild). No live API call
+    # here, so rebuild.sh stays deterministic offline. Without a valid
+    # snapshot, fall back to cannot_check.
+    snap = None
+    try:
+        snap = json.loads((DATA / "buyback_wallet_30d.json").read_text())
+    except Exception:
+        snap = None
+    if (isinstance(snap, dict) and "outbound_near_total" in snap
+            and "balance_near" in snap):
+        out_near = float(snap["outbound_near_total"])
+        bal = float(snap["balance_near"])
+        thr = float(snap.get("threshold_near", bal * 0.05))
+        pct = out_near / bal * 100 if bal else float("nan")
+        in_n = snap.get("inbound_count", "?")
+        in_near = snap.get("inbound_near_total", "?")
+        in_near_txt = (f"{in_near:,.2f}"
+                       if isinstance(in_near, (int, float)) else str(in_near))
+        in_from = ", ".join(snap.get("inbound_counterparties", {}).keys()) or "?"
+        recv_n = snap.get("receipts_examined", "?")
+        results.append({
+            "id": "F4",
+            "name": "Buyback-wallet outflow > 5% / 30d",
+            "threshold": "outflow > 5% of balance in 30d",
+            "reading": {"outflow_near": out_near, "balance_near": bal,
+                        "outflow_pct": pct, "threshold_near": thr,
+                        "receipts_examined": recv_n,
+                        "inbound_near_total": in_near},
+            "reading_text": f"outflow {out_near:,.2f} NEAR "
+                            f"({pct:.4f}% of {bal:,.2f} NEAR balance) over "
+                            f"{str(snap.get('window_start_utc', '?'))[:10]}.."
+                            f"{str(snap.get('window_end_utc', '?'))[:10]}",
+            "status": "triggered" if pct > 5 else "not_triggered",
+            "evidence": f"{recv_n} receipts examined ({in_n} inbound, "
+                        f"{in_near_txt} NEAR from {in_from}; "
+                        f"{snap.get('outbound_count', '?')} outbound). "
+                        f"Snapshot checked {snap.get('checked_at_utc', '?')}.",
+            "source": snap.get("source", "data/buyback_wallet_30d.json"),
+        })
+    else:
+        results.append({
+            "id": "F4",
+            "name": "Buyback-wallet outflow > 5% / 30d",
+            "threshold": "outflow > 5% of balance in 30d",
+            "reading": None,
+            "reading_text": "cannot compute: no buyback-wallet snapshot",
+            "status": "cannot_check",
+            "evidence": "No data/buyback_wallet_30d.json in this repo. "
+                        "Evaluating the falsifier needs the buyback wallet "
+                        "address + a 30-day flow history (Nearblocks).",
+            "source": "none (snapshot missing)",
+        })
 
     # ---- F5: ETF outflows 4+ weeks ---------------------------------------
     results.append({

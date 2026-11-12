@@ -173,14 +173,18 @@ def fetch_coingecko(env: dict, manifest: dict) -> None:
         data = http_get_json(url, headers)
         prices = {int(ts // 1000): p for ts, p in data.get("prices", [])}
         vols = {int(ts // 1000): v for ts, v in data.get("total_volumes", [])}
-        rows = [
-            {
-                "date": datetime.fromtimestamp(ts, tz=timezone.utc).date().isoformat(),
+        # CoinGecko's daily interval appends a live "now" point after the last
+        # 00:00 UTC point, so the final calendar date can appear twice. Keep
+        # one row per date: the most recent timestamp wins.
+        by_date = {}
+        for ts in sorted(prices):
+            day = datetime.fromtimestamp(ts, tz=timezone.utc).date().isoformat()
+            by_date[day] = {
+                "date": day,
                 "price_usd": prices[ts],
                 "volume_usd": vols.get(ts, ""),
             }
-            for ts in sorted(prices)
-        ]
+        rows = [by_date[d] for d in sorted(by_date)]
         n = write_csv(DATA / f"{coin}_price_daily.csv", rows, ["date", "price_usd", "volume_usd"])
         record_manifest(manifest, f"{coin}_price_daily.csv", "CoinGecko market_chart", url, n)
         print(f"[coingecko] {coin}: {n} days -> {coin}_price_daily.csv")
@@ -202,8 +206,11 @@ def fetch_coingecko(env: dict, manifest: dict) -> None:
     }
     write_json(DATA / "near_market.json", snapshot)
     record_manifest(manifest, "near_market.json", "CoinGecko /coins/near", url, None)
-    print(f"[coingecko] near market snapshot -> near_market.json "
-          f"(market cap ${snapshot['market_cap_usd']:,}" if snapshot["market_cap_usd"] else "[coingecko] near market snapshot -> near_market.json")
+    if snapshot["market_cap_usd"]:
+        print(f"[coingecko] near market snapshot -> near_market.json "
+              f"(market cap ${snapshot['market_cap_usd']:,})")
+    else:
+        print("[coingecko] near market snapshot -> near_market.json")
 
 
 # ---------------------------------------------------------- DefiLlama ---
@@ -331,14 +338,26 @@ def fetch_bigquery(env: dict, manifest: dict) -> None:
             "     or run `gcloud auth application-default login`,\n"
             "     or run with --allow-partial to skip the BigQuery leg."
         ) from exc
-    sql_files = [ROOT / "queries" / "00-freshness.sql"] + sorted(
-        (ROOT / "queries").glob("g*.sql")
-    )
-    for sql_file in sql_files:
+    # Explicit job list (SQL file -> output CSV). Not a glob: the full g3
+    # (365-day join, ~2.4 TB) exceeds the free quota, g4 is a placeholder
+    # without verified contract addresses, and g5 duplicates g2. g3/g6 run
+    # as the LEAN variants that produced the shipped CSVs. The output names
+    # are what model.py and build_dashboard.py read.
+    bq_jobs = [
+        ("00-freshness.sql", "bq_00_freshness.csv"),
+        ("g1-daily-active-accounts.sql", "bq_g1_daily_active_accounts.csv"),
+        ("g2-tx-counts.sql", "bq_g2_tx_counts.csv"),
+        ("g3-contract-usage-lean.sql", "bq_g3_contract_usage.csv"),
+        ("g6-outcomes-lean.sql", "bq_g6_outcomes.csv"),
+    ]
+    for sql_name, out_name in bq_jobs:
+        sql_file = ROOT / "queries" / sql_name
         sql = sql_file.read_text()
         print(f"[bigquery] running {sql_file.name} ...")
-        rows = list(client.query(sql).result())
-        out_name = f"bq_{sql_file.stem.replace('-', '_')}.csv"
+        try:
+            rows = list(client.query(sql).result())
+        except Exception as exc:  # noqa: BLE001 - quota, permission, schema errors
+            raise FetchError(f"BigQuery query {sql_file.name} failed: {exc}") from exc
         # Underscore names: model.py and build_dashboard.py read
         # bq_g1_daily_active_accounts.csv etc. (hyphen stems would never match).
         if rows:

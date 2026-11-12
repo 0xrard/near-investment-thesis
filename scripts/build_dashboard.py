@@ -263,15 +263,22 @@ def tests_html(outputs):
             f"{k}: r={v['pearson_r']:.2f} (n={v['n_days']}d)" if v.get("pearson_r") is not None
             else f"{k}: n/a" for k, v in b["correlations"].items()
         )
-        parts.append(f"<p><strong>B — Additive growth:</strong> computed. {html.escape(det)}</p>")
+        parts.append(f"<p><strong>B — Additive growth:</strong> computed on daily changes "
+                     f"(volume growth vs activity growth). {html.escape(det)}</p>")
     else:
         parts.append(f"<p><strong>B — Additive growth:</strong> {b['status'].replace('_', ' ')}. "
                      f"{html.escape(b.get('reason') or '')}</p>")
     ll = t["lead_lag_volume_vs_price"]
     if ll["status"] == "computed":
+        band = ll.get("noise_band_95")
+        noise = ""
+        if band is not None:
+            verdict = ("outside" if ll.get("best_is_significant") else "within")
+            noise = f"; 95% noise band ±{band:.2f}, so {verdict} noise"
         parts.append(
-            f"<p><strong>Lead/lag (volume vs price):</strong> computed. Best lag: "
-            f"{ll['best_lag_days']} days (r={ll['best_pearson_r']:.2f}). "
+            f"<p><strong>Lead/lag (volume vs price):</strong> computed on daily changes. "
+            f"Strongest lag (by |r|): {ll['best_lag_days']} days "
+            f"(r={ll['best_pearson_r']:.2f}{noise}). "
             f"Positive lag means volume moves first.</p>")
     else:
         parts.append(f"<p><strong>Lead/lag (volume vs price):</strong> "
