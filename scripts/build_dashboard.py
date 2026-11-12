@@ -708,7 +708,7 @@ def build() -> None:
 <section id="claim">
   <div class="sec-kicker">Section 1 · Claim</div>
   <h2 class="sec-title">The claim</h2>
-  <p class="lede">NEAR is becoming the settlement layer for cross-chain value transfer — and Intents volume is the metric that proves it, while the market hasn't priced it in yet.</p>
+  <p class="lede">NEAR is becoming the settlement layer for cross-chain value transfer — and Intents volume is the metric that proves it — but the market has already priced in the delivery.</p>
   <p>More precisely: <strong>cross-chain volume through NEAR Intents is a better leading indicator of real network usage than token price.</strong> Three things have to be true — volume <em>leads</em> price, volume is <em>sticky</em>, and Intents grows <em>together with</em> on-chain activity. Each is tested below, with its own falsifier.</p>
   <div class="box falsifier">
     <h3>Falsifier</h3>
