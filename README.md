@@ -5,7 +5,7 @@ Submission deadline: **14 November 2026, 23:59 UTC**.
 
 ## The thesis, in one sentence
 
-> NEAR is becoming the settlement layer for cross-chain value transfer — and Intents volume is the metric that proves it, while the market hasn't priced it in yet.
+> NEAR is becoming the settlement layer for cross-chain value transfer — and Intents volume is the metric that proves it — but the market has already priced in the delivery.
 
 ## The hypothesis we test
 
