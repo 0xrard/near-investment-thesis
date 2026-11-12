@@ -1,0 +1,8 @@
+# Only needed for the BigQuery leg of scripts/fetch.py.
+google-cloud-bigquery>=3.0
+
+# Figure scripts (scripts/generate_chapter*_figures.py) import these at
+# top level: requests for live fetches, matplotlib for the charts.
+# Without them, rebuild.sh warns and keeps stale figures/captions/stats.
+requests>=2.0
+matplotlib>=3.0

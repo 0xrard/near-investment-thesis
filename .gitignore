@@ -1,0 +1,17 @@
+# Credentials — NEVER commit.
+.env
+*.pem
+*.key
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# OS / editor
+.DS_Store
+.vscode/
+
+# NOTE: data/ CSVs are SHIPPED, not ignored — they are the reproducible
+# evidence. Only credentials and local caches are ignored.
