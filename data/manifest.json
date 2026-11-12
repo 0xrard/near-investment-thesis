@@ -62,7 +62,7 @@
  },
  "falsifiers.json": {
   "note": "Falsifier check (F1-F6) from shipped CSVs + revenue.near.org live scrape.",
-  "pulled_at_utc": "2026-11-12T08:58:01.944959+00:00",
+  "pulled_at_utc": "2026-11-12T09:49:22.672054+00:00",
   "rows": 6,
   "source": "scripts/check_falsifiers.py",
   "url": "scripts/check_falsifiers.py"
