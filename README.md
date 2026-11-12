@@ -24,14 +24,14 @@ MAX(block_date) = 2026-11-11, G1 + G2 over 365 days, G3 lean 7 days,
 G6 lean 30 days — all in `data/`, see `data/manifest.json` and
 `data/README.md`. Intents volume + fees come from DefiLlama (keyless);
 the canonical Intents Explorer API series needs a JWT and is not yet
-fetched. `./rebuild.sh --model-only` rebuilds model + figures + dashboard
-from the shipped CSVs with no credentials.
+fetched. `./rebuild.sh --model-only` rebuilds model + figures + dashboard +
+falsifier checks from the shipped CSVs with no credentials.
 
 ## How to re-run (one command)
 
 ```bash
-./rebuild.sh            # full rebuild: fetch -> model -> build dashboard
-./rebuild.sh --model-only   # Level 2: model + dashboard only, NO credentials needed
+./rebuild.sh            # full rebuild: fetch -> model -> figures -> dashboard -> falsifiers
+./rebuild.sh --model-only   # Level 2: model + figures + dashboard + falsifiers, NO credentials needed
 ```
 
 ### Level 1 — full rebuild (needs credentials)
@@ -57,6 +57,10 @@ Only Python 3.10+ (standard library) is needed. The model runs on the CSVs alrea
 
 This is the level the AI judges check: clone → run one command → the dashboard builds and matches this README.
 
+### Falsifier checks (step 5 of every rebuild)
+
+`scripts/check_falsifiers.py` evaluates the six falsifiers (F1–F6, Chapter 6 / Table 5) from the shipped CSVs plus the monthly net revenue series scraped live from revenue.near.org (keyless, same scrape the figure scripts use), and writes `data/falsifiers.json`. F1, F2, and F6 are computed; F3 reports not-yet-decidable until its 30 Jun 2027 deadline; F4 and F5 report cannot-check (no wallet-balance history, no public ETF-flow endpoint — the PDF itself states F5 is not re-runnable). A triggered falsifier is a finding, not a build error, and never breaks the build.
+
 ## Repo layout
 
 ```
@@ -67,13 +71,14 @@ data/                   raw CSVs (shipped, with source + pull date in manifest.j
 scripts/
   fetch.py              pulls BigQuery / Intents API / CoinGecko / DefiLlama -> data/
   build_dashboard.py    builds dashboard/index-generated.html from data/ + model outputs
+  check_falsifiers.py   evaluates falsifiers F1-F6 -> data/falsifiers.json
 model/
   config.yaml           ALL model assumptions in one file (fee take rate, growth, issuance)
   model.py              scenario model + deflationary-threshold recomputation + hypothesis tests
 dashboard/
   index.html            thesis page served by GitHub Pages — frozen 11 Nov 2026 snapshot; rebuild never overwrites it
   index-generated.html  regenerated dashboard from the pipeline (data/ + model outputs)
-rebuild.sh              ONE command: fetch -> model -> build dashboard
+rebuild.sh              ONE command: fetch -> model -> figures -> dashboard -> falsifiers
 .env.example            credential placeholders (no real values)
 ```
 

@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
-# ONE command: fetch -> model -> figures -> build dashboard.
+# ONE command: fetch -> model -> figures -> build dashboard -> check falsifiers.
 #   ./rebuild.sh              full rebuild (needs .env credentials for BigQuery + Intents)
-#   ./rebuild.sh --model-only model + figures + dashboard from the shipped CSVs (no credentials)
+#   ./rebuild.sh --model-only model + figures + dashboard + falsifiers from the shipped CSVs (no credentials)
 # Figures (scripts/generate_chapter*_figures.py) fetch live data (keyless, no
 # credentials) and regenerate figures/ + data/captions.json + data/stats.json.
 # They run after the model so the Chapter 4 stats cross-check reads fresh
 # model outputs. A figure failure never breaks the build: the previous
 # figures/captions/stats are kept and the rebuild continues (both modes).
+# The falsifier check (scripts/check_falsifiers.py, step 5) evaluates F1-F6
+# from the shipped CSVs + the monthly net revenue scrape; a TRIGGERED
+# falsifier is a finding, not a build error, and never breaks the build.
 # BigQuery freshness (queries/00-freshness.sql, MAX(block_date)) runs inside
 # fetch.py's BigQuery leg, first, and lands in data/bq_00_freshness.csv,
 # which build_dashboard.py reads for its freshness display. With no GCP
@@ -16,8 +19,8 @@ cd "$(dirname "$0")"
 
 usage() {
   echo "Usage: ./rebuild.sh [--model-only]"
-  echo "  (no args)    full rebuild: fetch -> model -> figures -> build dashboard"
-  echo "  --model-only model + figures + dashboard from the shipped CSVs (no credentials)"
+  echo "  (no args)    full rebuild: fetch -> model -> figures -> build dashboard -> check falsifiers"
+  echo "  --model-only model + figures + dashboard + falsifiers from the shipped CSVs (no credentials)"
 }
 
 MODE="full"
@@ -30,7 +33,7 @@ for arg in "$@"; do
 done
 
 if [ "$MODE" = "full" ]; then
-  echo "== [1/4] Fetching data (needs .env credentials for BigQuery + Intents) =="
+  echo "== [1/5] Fetching data (needs .env credentials for BigQuery + Intents) =="
   if ! python3 scripts/fetch.py; then
     echo ""
     echo "Fetch failed. Either fix the credentials (see the message above),"
@@ -39,21 +42,26 @@ if [ "$MODE" = "full" ]; then
     exit 1
   fi
 else
-  echo "== [1/4] Skipping fetch (--model-only: no credentials needed) =="
+  echo "== [1/5] Skipping fetch (--model-only: no credentials needed) =="
 fi
 
-echo "== [2/4] Running model =="
+echo "== [2/5] Running model =="
 python3 model/model.py
 
-echo "== [3/4] Generating figures (captions + stats) =="
+echo "== [3/5] Generating figures (captions + stats) =="
 for script in generate_chapter3_figures.py generate_chapter4_figures.py generate_chapter5_figures.py; do
   if ! python3 "scripts/$script"; then
     echo "WARNING: $script failed; keeping previous figures/captions/stats." >&2
   fi
 done
 
-echo "== [4/4] Building dashboard =="
+echo "== [4/5] Building dashboard =="
 python3 scripts/build_dashboard.py
+
+echo "== [5/5] Checking falsifiers (F1-F6) =="
+if ! python3 scripts/check_falsifiers.py; then
+  echo "WARNING: check_falsifiers.py failed; keeping previous data/falsifiers.json." >&2
+fi
 
 echo ""
 echo "Done: dashboard/index-generated.html (thesis page dashboard/index.html untouched)"
