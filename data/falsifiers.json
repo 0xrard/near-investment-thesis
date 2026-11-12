@@ -1,5 +1,5 @@
 {
- "generated_at_utc": "2026-11-12T14:16:54.553186+00:00",
+ "generated_at_utc": "2026-11-12T14:27:40.922594+00:00",
  "data_as_of": "2026-11-10",
  "falsifiers": [
   {
@@ -44,15 +44,15 @@
    "threshold": "outflow > 5% of balance in 30d",
    "reading": {
     "outflow_near": 0.0,
-    "balance_near": 2252701.35,
+    "balance_near": 2254862.09,
     "outflow_pct": 0.0,
-    "threshold_near": 112635.07,
-    "receipts_examined": 779,
-    "inbound_near_total": 290403.02
+    "threshold_near": 112743.1,
+    "receipts_examined": 776,
+    "inbound_near_total": 290607.86
    },
-   "reading_text": "outflow 0.00 NEAR (0.0000% of 2,252,701.35 NEAR balance) over 2026-10-13..2026-11-12",
+   "reading_text": "outflow 0.00 NEAR (0.0000% of 2,254,862.09 NEAR balance) over 2026-10-13..2026-11-12",
    "status": "not_triggered",
-   "evidence": "779 receipts examined (778 inbound, 290,403.02 NEAR from intents.near; 0 outbound). Snapshot checked 2026-11-12T08:36:00+00:00. Counts native NEAR (action deposits) only, not token transfers.",
+   "evidence": "776 receipts examined (776 inbound, 290,607.86 NEAR from 52435fe912307fb3a088b8b8f3882781762fc1f0a404e8579c7fb1a964362c8d, intents.near; 0 outbound). Snapshot checked 2026-11-12T14:26:23+00:00. Counts native NEAR (action deposits) only, not token transfers.",
    "source": "Nearblocks API (read-only): /v1/account/{wallet} (balance) + /v1/account/{wallet}/txns (receipts, order=desc, per_page=100). Direction by predecessor/receiver; amounts = action deposits."
   },
   {

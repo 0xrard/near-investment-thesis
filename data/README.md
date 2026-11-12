@@ -55,8 +55,12 @@ reads more into it than it holds:
   file is missing/invalid, or the balance is 0), `check_falsifiers.py`
   reports F4 as `cannot_check` instead of repeating an old
   `not_triggered`.
-- **To refresh:** re-query the endpoints above for the trailing 30 days and
-  overwrite the file, keeping at least `balance_near`, `outbound_near_total`,
+- **To refresh:** run `python3 scripts/fetch_f4_snapshot.py` (no key
+  needed; it queries the endpoints above for the trailing 30 days and
+  overwrites this file atomically). It fails hard — writing nothing —
+  if pagination is truncated or the receipt history ends before the
+  window start, and it self-checks the result with `evaluate_f4`.
+  The file keeps at least `balance_near`, `outbound_near_total`,
   `checked_at_utc`, `window_start_utc`, `window_end_utc`, `source`,
   `provenance`.
 
