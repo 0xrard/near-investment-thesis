@@ -89,9 +89,10 @@ figure values may differ slightly from the frozen numbers here).
 THESIS.md §7, "What would change our mind") from the shipped CSVs plus the
 monthly net revenue series scraped live from revenue.near.org (keyless, same
 scrape the figure scripts use), and writes `data/falsifiers.json`. F1, F2,
-and F6 are computed; F3 reports not-yet-decidable until its 30 Jun 2027
-deadline; F4 and F5 report cannot-check (no wallet-balance history, no public
-ETF-flow endpoint — so the F5 reading is not re-runnable). A triggered
+F4, and F6 are computed (F4 from the buyback-wallet snapshot
+`data/buyback_wallet_30d.json`); F3 reports not-yet-decidable until its
+30 Jun 2027 deadline; F5 reports cannot-check (no public ETF-flow endpoint
+— so the F5 reading is not re-runnable). A triggered
 falsifier is a finding, not a build error, and never breaks the build. (The
 "PDF v3" cited in THESIS.md is Nino's own thesis dossier, *NEAR Protocol
 Investment Thesis*, 11 Nov 2026 — it is not in this repo; THESIS.md is the
