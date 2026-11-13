@@ -15,6 +15,8 @@ Raw CSVs land here, one file per series, plus a `manifest.json` written by
 | `bq_g6_outcomes.csv` | BigQuery | G6: daily success rate + gas burnt (LEAN 30d) |
 | `intents_volume_daily.csv` | DefiLlama | G4: daily Intents volume (USD, raw/unadjusted) |
 | `intents_fees_daily.csv` | DefiLlama | Daily Intents fees + revenue (USD) |
+| `intents_revenue_monthly.csv` | revenue.near.org | Monthly net protocol revenue (USD) + cumulative (16 months, Aug 2025–Nov 2026) |
+| `intents_revenue_daily.csv` | revenue.near.org | Daily cumulative revenue + emissions (NEAR, 316d, from 2026-01-01) |
 | `intents_volume_api_daily.csv` | Intents Explorer API | G4/G5: canonical daily Intents volume (JWT-gated) |
 | `intents_explorer_raw.json` | Intents Explorer API | Raw API response (audit trail) |
 | `defillama_intents_dexs.json` | DefiLlama | Intents summary: totalVolume (cumulative), total24h |

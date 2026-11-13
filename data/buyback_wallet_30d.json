@@ -1,27 +1,27 @@
 {
-  "balance_block_height": 224226454,
-  "balance_near": 2254862.09,
-  "checked_at_utc": "2026-11-12T14:26:23+00:00",
-  "inbound_count": 776,
+  "balance_block_height": 224350451,
+  "balance_near": 2273913.9,
+  "checked_at_utc": "2026-11-13T10:24:45+00:00",
+  "inbound_count": 783,
   "inbound_counterparties": {
     "52435fe912307fb3a088b8b8f3882781762fc1f0a404e8579c7fb1a964362c8d": 1,
-    "intents.near": 775
+    "intents.near": 782
   },
-  "inbound_near_total": 290607.86,
-  "notes": "Gas per receipt (~0.00002 NEAR) is not counted as flow; negligible against the 5% threshold. Counts native NEAR (action deposits) only, not token transfers. Of 776 receipts examined, 776 carried inbound NEAR and 0 carried outbound NEAR; 0 moved no NEAR.",
+  "inbound_near_total": 303608.14,
+  "notes": "Gas per receipt (~0.00002 NEAR) is not counted as flow; negligible against the 5% threshold. Counts native NEAR (action deposits) only, not token transfers. Of 783 receipts examined, 783 carried inbound NEAR and 0 carried outbound NEAR; 0 moved no NEAR.",
   "outbound_count": 0,
   "outbound_counterparties": {},
   "outbound_near_total": 0.0,
   "outflow_pct_of_balance": 0.0,
-  "provenance": "Fetched 2026-11-12T14:26:23+00:00 by scripts/fetch_f4_snapshot.py (776 receipts in the trailing 30d window).",
-  "receipts_examined": 776,
+  "provenance": "Fetched 2026-11-13T10:24:45+00:00 by scripts/fetch_f4_snapshot.py (783 receipts in the trailing 30d window).",
+  "receipts_examined": 783,
   "self_transfers_count": 0,
   "source": "Nearblocks API (read-only): /v1/account/{wallet} (balance) + /v1/account/{wallet}/txns (receipts, order=desc, per_page=100). Direction by predecessor/receiver; amounts = action deposits.",
   "status": "not_triggered",
-  "threshold_near": 112743.1,
+  "threshold_near": 113695.7,
   "threshold_pct": 5,
   "wallet": "buybacks.multisignature.near",
   "window_days": 30,
-  "window_end_utc": "2026-11-12T14:26:23+00:00",
-  "window_start_utc": "2026-10-13T14:26:23+00:00"
+  "window_end_utc": "2026-11-13T10:24:45+00:00",
+  "window_start_utc": "2026-10-14T10:24:45+00:00"
 }

@@ -58,6 +58,7 @@ import statistics
 import sys
 from pathlib import Path
 
+import csv
 import requests
 
 import matplotlib
@@ -254,6 +255,42 @@ def source_line(fig, text):
     fig.text(0.01, 0.005, text, fontsize=8, color=MUTED)
 
 
+def _revenue_monthly_csv():
+    """Monthly net revenue from the shipped CSV, or None when missing.
+
+    Returns {(year, month): (value, cumulative)}, the same shape as
+    _revenue_monthly(rsc). Written by scripts/fetch.py on a full rebuild.
+    """
+    csv_path = ROOT / "data" / "intents_revenue_monthly.csv"
+    if not csv_path.exists():
+        return None
+    out = {}
+    with open(csv_path, newline="") as f:
+        for row in csv.DictReader(f):
+            out[(int(row["year"]), int(row["month"]))] = (
+                float(row["net_revenue_usd"]), float(row["cumulative_usd"]))
+    return out or None
+
+
+def _abs_rev_emissions_csv():
+    """Daily cumulative (revenueNear, emissionsNear) from the shipped CSV.
+
+    Returns a list of (date, revenue_near, emissions_near) sorted by date,
+    the same shape as _abs_rev_emissions(rsc), or None when missing.
+    """
+    csv_path = ROOT / "data" / "intents_revenue_daily.csv"
+    if not csv_path.exists():
+        return None
+    out = []
+    with open(csv_path, newline="") as f:
+        for row in csv.DictReader(f):
+            out.append((datetime.date.fromisoformat(row["date"]),
+                        float(row["cumulative_revenue_near"]),
+                        float(row["cumulative_emissions_near"])))
+    out.sort()
+    return out or None
+
+
 def _revenue_rsc():
     """Server-rendered dashboard HTML -> decoded RSC payload text."""
     html = requests.get("https://revenue.near.org",
@@ -313,9 +350,17 @@ def _monthly_offsets():
     the daily series starts 2026-01-01 and its January revenue delta is 0
     (series-start artifact).
     """
-    rsc = _revenue_rsc()
-    net = _revenue_monthly(rsc)
-    daily = _abs_rev_emissions(rsc)
+    # Prefer the shipped files (written by scripts/fetch.py on a full
+    # rebuild); fall back to the live scrape when they are missing.
+    net = _revenue_monthly_csv()
+    daily = _abs_rev_emissions_csv()
+    if net is None or daily is None:
+        rsc = _revenue_rsc()
+        net = _revenue_monthly(rsc)
+        daily = _abs_rev_emissions(rsc)
+    else:
+        print("  revenue: using shipped data/intents_revenue_monthly.csv + "
+              "data/intents_revenue_daily.csv")
     avg_price = _binance_monthly_avg()
 
     # Dashboard monthly deltas from the daily cumulative series.

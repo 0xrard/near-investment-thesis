@@ -1,5 +1,5 @@
 {
- "generated_at_utc": "2026-11-12T14:27:40.922594+00:00",
+ "generated_at_utc": "2026-11-13T10:29:18.506377+00:00",
  "data_as_of": "2026-11-10",
  "falsifiers": [
   {
@@ -17,15 +17,15 @@
    "name": "Take < 3 bps or capture < 15% (60d)",
    "threshold": "take < 3 bps OR capture < 15%",
    "reading": {
-    "take_bps": 5.379513164112769,
-    "capture_pct": 32.77002996577011,
-    "net_60d_usd": 4570043.166666667,
+    "take_bps": 5.471563180836635,
+    "capture_pct": 33.330765057286186,
+    "net_60d_usd": 4648242.166666667,
     "gross_60d_usd": 13945801.0,
     "volume_60d_usd": 8495272764.0
    },
-   "reading_text": "take 5.38 bps (net), capture 32.8% over 2026-09-12..2026-11-10",
+   "reading_text": "take 5.47 bps (net), capture 33.3% over 2026-09-12..2026-11-10",
    "status": "not_triggered",
-   "evidence": "Net 60d $4.57M (monthly net pro-rated: Sep 26 (19/30d); Oct 26 (31/31d); Nov 26 (10d of MTD, daily series)); gross 60d $13.95M; volume 60d $8.50B.",
+   "evidence": "Net 60d $4.65M (monthly net pro-rated: Sep 26 (19/30d); Oct 26 (31/31d); Nov 26 (10d of MTD, daily series)); gross 60d $13.95M; volume 60d $8.50B.",
    "source": "revenue.near.org monthly net + daily revenue series + DefiLlama daily fees/volume (shipped CSVs)"
   },
   {
@@ -33,7 +33,7 @@
    "name": "HSP-029 not live by mid-2027",
    "threshold": "HSP-029 not live on 30 Jun 2027",
    "reading": null,
-   "reading_text": "deadline 2027-06-30 not reached (today 2026-11-12)",
+   "reading_text": "deadline 2027-06-30 not reached (today 2026-11-13)",
    "status": "not_yet_decidable",
    "evidence": "HSP-029 passed 2 Nov 2026 (99.96%); 2.5% -> 1.6% phased over 24 months; not yet live (needs Security Council ratification + ~90-day grace + validator adoption, earliest ~Feb 2027).",
    "source": "PDF \u00a73.3 / HSP-029 vote record"
@@ -44,15 +44,15 @@
    "threshold": "outflow > 5% of balance in 30d",
    "reading": {
     "outflow_near": 0.0,
-    "balance_near": 2254862.09,
+    "balance_near": 2273913.9,
     "outflow_pct": 0.0,
-    "threshold_near": 112743.1,
-    "receipts_examined": 776,
-    "inbound_near_total": 290607.86
+    "threshold_near": 113695.7,
+    "receipts_examined": 783,
+    "inbound_near_total": 303608.14
    },
-   "reading_text": "outflow 0.00 NEAR (0.0000% of 2,254,862.09 NEAR balance) over 2026-10-13..2026-11-12",
+   "reading_text": "outflow 0.00 NEAR (0.0000% of 2,273,913.90 NEAR balance) over 2026-10-14..2026-11-13",
    "status": "not_triggered",
-   "evidence": "776 receipts examined (776 inbound, 290,607.86 NEAR from 52435fe912307fb3a088b8b8f3882781762fc1f0a404e8579c7fb1a964362c8d, intents.near; 0 outbound). Snapshot checked 2026-11-12T14:26:23+00:00. Counts native NEAR (action deposits) only, not token transfers.",
+   "evidence": "783 receipts examined (783 inbound, 303,608.14 NEAR from 52435fe912307fb3a088b8b8f3882781762fc1f0a404e8579c7fb1a964362c8d, intents.near; 0 outbound). Snapshot checked 2026-11-13T10:24:45+00:00. Counts native NEAR (action deposits) only, not token transfers.",
    "source": "Nearblocks API (read-only): /v1/account/{wallet} (balance) + /v1/account/{wallet}/txns (receipts, order=desc, per_page=100). Direction by predecessor/receiver; amounts = action deposits."
   },
   {

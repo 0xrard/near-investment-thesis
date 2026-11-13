@@ -54,6 +54,7 @@ import statistics
 import sys
 from pathlib import Path
 
+import csv
 import requests
 
 import matplotlib
@@ -139,7 +140,22 @@ def source_line(fig, text):
 
 
 def _revenue_monthly():
-    """Monthly net protocol revenue (USD) from revenue.near.org (RSC scrape)."""
+    """Monthly net protocol revenue (USD): {(year, month): (value, cumulative)}.
+
+    Prefers the shipped data/intents_revenue_monthly.csv (written by
+    scripts/fetch.py on a full rebuild); falls back to the live
+    revenue.near.org scrape when the file is missing.
+    """
+    csv_path = ROOT / "data" / "intents_revenue_monthly.csv"
+    if csv_path.exists():
+        out = {}
+        with open(csv_path, newline="") as f:
+            for row in csv.DictReader(f):
+                out[(int(row["year"]), int(row["month"]))] = (
+                    float(row["net_revenue_usd"]), float(row["cumulative_usd"]))
+        if out:
+            print("  revenue: using shipped data/intents_revenue_monthly.csv")
+            return out
     html = requests.get("https://revenue.near.org",
                         headers={"User-Agent": "near-thesis/1.0"}, timeout=30).text
     chunks = re.findall(r'self\.__next_f\.push\(\[1,\s*"((?:[^"\\]|\\.)*)"\]\)', html)

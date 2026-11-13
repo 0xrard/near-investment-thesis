@@ -69,6 +69,37 @@ def read_series(path, value_col):
     return rows
 
 
+def _revenue_from_csv():
+    """Monthly + daily revenue series from the shipped CSVs.
+
+    Returns (net_m, daily) with net_m = {(year, month): net_usd} and
+    daily = {date: cumulative_revenue_near}, the same shapes as
+    revenue_monthly(rsc) / revenue_daily(rsc); (None, None) when either
+    file is missing or unparseable. The CSVs are written by
+    scripts/fetch.py on a full rebuild.
+    """
+    m_path = DATA / "intents_revenue_monthly.csv"
+    d_path = DATA / "intents_revenue_daily.csv"
+    if not m_path.exists() or not d_path.exists():
+        return None, None
+    try:
+        net_m = {}
+        with open(m_path, newline="") as f:
+            for row in csv.DictReader(f):
+                net_m[(int(row["year"]), int(row["month"]))] = float(row["net_revenue_usd"])
+        daily = {}
+        with open(d_path, newline="") as f:
+            for row in csv.DictReader(f):
+                daily[datetime.date.fromisoformat(row["date"])] = float(row["cumulative_revenue_near"])
+    except (OSError, ValueError, KeyError):
+        return None, None
+    if not net_m or not daily:
+        return None, None
+    print("falsifiers: using shipped data/intents_revenue_monthly.csv + "
+          "data/intents_revenue_daily.csv")
+    return net_m, daily
+
+
 def _revenue_rsc():
     """Fetch revenue.near.org once; return the decoded RSC payload text,
     or None when unreachable/unparseable. The payload carries both the
@@ -295,9 +326,13 @@ def main():
               "intents_fees_daily.csv missing from data/",
               file=sys.stderr)
         return 1
-    rsc = _revenue_rsc()
-    net_m = revenue_monthly(rsc) if rsc else None
-    daily = revenue_daily(rsc) if rsc else None
+    # Prefer the shipped CSVs (written by scripts/fetch.py on a full
+    # rebuild); fall back to the live scrape when they are missing.
+    net_m, daily = _revenue_from_csv()
+    if net_m is None or daily is None:
+        rsc = _revenue_rsc()
+        net_m = revenue_monthly(rsc) if rsc else None
+        daily = revenue_daily(rsc) if rsc else None
     if net_m is None and OUT.exists():
         # Offline run must not silently degrade the committed file: F2 and
         # F6 would flip from computed to cannot_check. Keep the previous

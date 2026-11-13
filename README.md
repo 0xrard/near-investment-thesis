@@ -158,6 +158,8 @@ Intents API becomes the fresh leg — the dashboard says so.
 
 `dashboard/index.html` is a static page (GitHub Pages). Every chart shows the query or source behind it, with one plain sentence on what it shows. Evidence **against** the thesis is shown first and prominently — a thesis that hides its counter-evidence is not a thesis.
 
+**Live build:** the pipeline dashboard, regenerated on every rebuild from the latest data — [index-generated.html](https://0xrard.github.io/near-investment-thesis/dashboard/index-generated.html). Its numbers may differ from the frozen 11 Nov 2026 thesis page above, because they are recomputed from the newest data on each rebuild.
+
 ## Author
 
 **0xrard** — independent research, NEAR Hackathon 2026.

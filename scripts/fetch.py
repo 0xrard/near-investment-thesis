@@ -6,6 +6,7 @@ Sources (all free except the two credential-gated ones):
   - DefiLlama API (no key): Intents volume + fees, chain DEX volumes.
   - NEAR Intents Explorer API (JWT-gated): canonical Intents volume series.
   - BigQuery (GCP project + credentials): queries/*.sql -> data/bq_*.csv.
+  - revenue.near.org (RSC scrape, no key): monthly + daily net revenue series.
 
 Every fetched file is recorded in data/manifest.json with source, URL and
 pull date (UTC) — the audit trail for every number on the dashboard.
@@ -18,6 +19,7 @@ import argparse
 import csv
 import json
 import os
+import re
 import sys
 import time
 import urllib.error
@@ -384,6 +386,62 @@ def fetch_bigquery(env: dict, manifest: dict) -> None:
                       "the Intents API is the fresh leg (see README).")
 
 
+
+def fetch_revenue(env: dict, manifest: dict) -> None:
+    """Monthly + daily net revenue from revenue.near.org (RSC scrape, no key).
+
+    Writes data/intents_revenue_monthly.csv (year, month, net_revenue_usd,
+    cumulative_usd) and data/intents_revenue_daily.csv (date,
+    cumulative_revenue_near, cumulative_emissions_near). The figure scripts
+    and check_falsifiers.py read these shipped files first and only fall
+    back to the live scrape when they are missing, so a --model-only
+    rebuild is fully re-runnable from shipped data.
+    """
+    url = "https://revenue.near.org"
+    print("[revenue] revenue.near.org ...")
+    req = urllib.request.Request(url, headers={"User-Agent": "near-thesis-fetch/1.0"})
+    try:
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            html = resp.read().decode("utf-8")
+    except urllib.error.HTTPError as e:
+        raise FetchError(f"HTTP {e.code} for {url}")
+    except urllib.error.URLError as e:
+        raise FetchError(f"network error for {url}: {e.reason}")
+    chunks = re.findall(r'self\.__next_f\.push\(\[1,\s*"((?:[^"\\]|\\.)*)"\]\)', html)
+    rsc = "".join(chunks).encode().decode("unicode_escape", errors="replace")
+    rows = re.findall(r'\{"date":"([^"]+)","value":([\d.]+),"cumulative":([\d.]+)\}', rsc)
+    if not rows:
+        raise FetchError("revenue.near.org: no monthly revenue rows parsed")
+    mon = {"Jan": 1, "Feb": 2, "Mar": 3, "Apr": 4, "May": 5, "Jun": 6,
+           "Jul": 7, "Aug": 8, "Sep": 9, "Oct": 10, "Nov": 11, "Dec": 12}
+    monthly = []
+    for label, value, cum in rows:
+        m, y = label.split()
+        monthly.append({"year": 2000 + int(y.strip("'")), "month": mon[m],
+                        "net_revenue_usd": float(value), "cumulative_usd": float(cum)})
+    monthly.sort(key=lambda r: (r["year"], r["month"]))
+    n = write_csv(DATA / "intents_revenue_monthly.csv", monthly,
+                  ["year", "month", "net_revenue_usd", "cumulative_usd"])
+    record_manifest(manifest, "intents_revenue_monthly.csv",
+                    "revenue.near.org (RSC scrape)", url, n)
+    print(f"[revenue] monthly net revenue: {n} months, "
+          f"{monthly[0]['year']}-{monthly[0]['month']:02d}.."
+          f"{monthly[-1]['year']}-{monthly[-1]['month']:02d}")
+    m = re.search(r'"absoluteRevEmissions":\[(.*?)\]', rsc, re.S)
+    if not m:
+        raise FetchError("revenue.near.org: no absoluteRevEmissions array parsed")
+    arr = json.loads("[" + re.sub(r',\{"date[^\}]*$', "", m.group(1)) + "]")
+    daily = [{"date": e["date"], "cumulative_revenue_near": float(e["revenueNear"]),
+              "cumulative_emissions_near": float(e["emissionsNear"])} for e in arr]
+    daily.sort(key=lambda r: r["date"])
+    n = write_csv(DATA / "intents_revenue_daily.csv", daily,
+                  ["date", "cumulative_revenue_near", "cumulative_emissions_near"])
+    record_manifest(manifest, "intents_revenue_daily.csv",
+                    "revenue.near.org (RSC scrape)", url, n)
+    print(f"[revenue] daily cumulative revenue: {n} days, "
+          f"{daily[0]['date']}..{daily[-1]['date']}")
+
+
 # ----------------------------------------------------------------- main ---
 
 SOURCES = {
@@ -391,6 +449,7 @@ SOURCES = {
     "defillama": fetch_defillama,
     "intents": fetch_intents,
     "bigquery": fetch_bigquery,
+    "revenue": fetch_revenue,
 }
 
 

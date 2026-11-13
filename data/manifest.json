@@ -62,7 +62,7 @@
  },
  "falsifiers.json": {
   "note": "Falsifier check (F1-F6) from shipped CSVs + revenue.near.org live scrape.",
-  "pulled_at_utc": "2026-11-12T14:27:40.922594+00:00",
+  "pulled_at_utc": "2026-11-13T10:29:18.506377+00:00",
   "rows": 6,
   "source": "scripts/check_falsifiers.py",
   "url": "scripts/check_falsifiers.py"
@@ -72,6 +72,18 @@
   "rows": 550,
   "source": "DefiLlama /summary/fees",
   "url": "https://api.llama.fi/summary/fees/near-intents"
+ },
+ "intents_revenue_daily.csv": {
+  "pulled_at_utc": "2026-11-13T10:28:40+00:00",
+  "rows": 316,
+  "source": "revenue.near.org (RSC scrape)",
+  "url": "https://revenue.near.org"
+ },
+ "intents_revenue_monthly.csv": {
+  "pulled_at_utc": "2026-11-13T10:28:40+00:00",
+  "rows": 16,
+  "source": "revenue.near.org (RSC scrape)",
+  "url": "https://revenue.near.org"
  },
  "intents_volume_daily.csv": {
   "pulled_at_utc": "2026-11-11T15:06:03+00:00",

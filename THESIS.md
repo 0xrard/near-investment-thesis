@@ -4,7 +4,7 @@
 Author: **0xrard**. Status: **filled with data as of 11–12 November 2026.**
 Deadline: 14 November 2026, 23:59 UTC.
 
-> Every number in this document traces to primary data or to a computation in `model/` whose assumptions are in `model/config.yaml`. Data as of: BigQuery 11 November 2026, DefiLlama / CoinGecko 11 November 2026, model run 12 November 2026 06:03 UTC. Re-run `bash rebuild.sh` to refresh; the judges can re-run for updated data. Where a number comes from Nino's PDF v3 (11 Nov 2026 08:36–09:00 UTC) rather than this repo's own computations, it is labelled as such.
+> Every number in this document traces to primary data or to a computation in `model/` whose assumptions are in `model/config.yaml`. Data as of: BigQuery 11 November 2026, DefiLlama / CoinGecko 11 November 2026, model run 13 November 2026 09:43 UTC. Re-run `bash rebuild.sh` to refresh; the judges can re-run for updated data. Where a number comes from Nino's PDF v3 (11 Nov 2026 08:36–09:00 UTC) rather than this repo's own computations, it is labelled as such.
 
 ## 1. The claim
 
@@ -75,7 +75,7 @@ G1/G2 now confirm the reported figures, so they are stated here as measured, not
 
 ## 6. The model
 
-The model (`model/model.py`, assumptions in `model/config.yaml`) computes three things from primary data. Outputs below are from `data/model_outputs.json`, generated 12 November 2026 06:03 UTC from the shipped CSVs. No input is a placeholder any more: **gross take 16 bps** (measured 16.4 bps, 60-day gross fees / volume), **fee capture rate 32.6%** (measured, 60-day net / gross, falsifier F2) and **total NEAR supply 1,311,421,234** (CoinGecko, 11 Nov 2026) all come from shipped data. The scenario growth rates (0% / 15% / 30%) are assumptions, not measurements; the 30% bull rate is illustrative.
+The model (`model/model.py`, assumptions in `model/config.yaml`) computes three things from primary data. Outputs below are from `data/model_outputs.json`, generated 13 November 2026 09:43 UTC from the shipped CSVs. No input is a placeholder any more: **gross take 16 bps** (measured 16.4 bps, 60-day gross fees / volume), **fee capture rate 32.6%** (measured, 60-day net / gross, falsifier F2) and **total NEAR supply 1,311,421,234** (CoinGecko, 11 Nov 2026) all come from shipped data. The scenario growth rates (0% / 15% / 30%) are assumptions, not measurements; the 30% bull rate is illustrative.
 
 1. **Scenario table (bear / base / bull), 5-year horizon, at 16 bps take:** Bear (0% annual growth) $45.72B annual settlement volume / $73.15M annual fee revenue; Base (15%/yr) $91.96B / $147.13M; Bull (30%/yr) $169.75B / $271.60M. The bear case is today's run-rate by construction (16 bps × $45.72B ≈ $73M, against $71.5M annualised gross fees on DefiLlama's 30-day run-rate). Fee revenue scales linearly with the take rate (5 / 10 / 16 / 20 bps in `model_outputs.json`).
 2. **Deflationary threshold (V\*):** daily Intents volume at which buybacks offset new issuance, V\* = annual issuance value / (365 × gross take × capture). Annual issuance value is $122,078,362 (supply 1,311,421,234 × 2.5% × $3.7235). At the base 16 bps take and 32.6% capture, **V\* = $641,221,753/day at 2.5% issuance — 5.1× the current $125,257,736/day** (30-day average) — and **$410,381,922/day, 3.3×, at the 1.6% issuance that HSP-029 phases in**. Other take rates at 2.5%: $2,051,909,608/day at 5 bps, $1,025,954,804/day at 10 bps, $512,977,402/day at 20 bps. Against the scenarios: Bull year-5 volume ($169.75B/year ≈ $465M/day) is below the 2.5% threshold (0.73×) but **above the 1.6% threshold (1.13×)**; Base year-5 volume ($252M/day) is below both (0.39× / 0.61×), as is Bear. So buybacks do not offset issuance in the bear or base scenarios; they do in the bull case only if HSP-029 goes live (earliest ~Feb 2027, phased over 24 months) and 30% annual growth is sustained for five years.
@@ -84,7 +84,7 @@ The model (`model/model.py`, assumptions in `model/config.yaml`) computes three 
 4. **P / F** (market cap / annualised fees): **68.26×** gross (market cap $4,882,342,987 / annualised gross fees $71,529,432, both 11 Nov 2026). Cross-check: Nino's input P/F 58.8× (9 Nov 2026) was computed from the same inputs at that date. On a net basis (PDF v3, October net revenue $2.50M/month × 12 = $30M/year) the multiple is ≈163×.
 5. **Net issuance after burn (2027E)** ~1.5% (Nino's estimate, 9 Nov 2026) — a scenario cross-check, not a model input; verify from on-chain burn data before citing.
 
-**Current outputs:** computed, 12 November 2026 06:03 UTC — see `data/model_outputs.json`. `placeholder: false`; every input is fetched or measured data.
+**Current outputs:** computed, 13 November 2026 09:43 UTC — see `data/model_outputs.json`. `placeholder: false`; every input is fetched or measured data.
 
 ### Verdict: priced for delivery
 
