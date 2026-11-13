@@ -38,13 +38,12 @@ Figure 6 method (monthly offset ratio = net revenue / token emissions):
   (partial month, faded + '*').
 Figure 7 method (deflation threshold model):
   A model chart, not a time series. Inputs are MEASURED and read from
-  data/model_outputs.json (see _fig7_inputs): net take 4.72 bps (16 bps
-  gross x 29.5% capture), NEAR price $3.72, mint 89,822 NEAR/day at 2.5%
-  and 57,300 NEAR/day at 1.6% (HSP-029 target). V* markers at the model's
-  $702M/day (2.5%) and $450M/day (1.6%); the formula
-  V* = (i x S / 365 x P) / tau gives $708M and $453M, a touch above the
-  markers because the model divides the issuance value ($121.0M) while the
-  formula divides supply x price ($122.1M).
+  data/model_outputs.json (see _fig7_inputs): net take 5.22 bps (16 bps
+  gross x 32.6% capture), NEAR price $3.51, mint 89,814 NEAR/day at 2.5%
+  and 57,481 NEAR/day at 1.6% (HSP-029 target). V* markers at the model's
+  $605M/day (2.5%) and $387M/day (1.6%); the formula
+  V* = (i x S / 365 x P) / tau gives the same $605M and $387M (issuance
+  value $115.1M).
 
 Requirements: python3 + requests + matplotlib. No API keys.
 """
@@ -204,11 +203,12 @@ DAILY_EMISSIONS = 87604.0
 # straight from the model's deflationary threshold, so Figure 7 can never
 # disagree with THESIS.md section 6 again. The 1.6% marker scales the 2.5%
 # threshold by the issuance ratio (1.6/2.5). Fallbacks are the same measured
-# values (12 Nov 2026), used only if model_outputs.json is absent (cold
+# values (13 Nov 2026), used only if model_outputs.json is absent (cold
 # start before the first model run).
 def _fig7_inputs():
-    fallback = {"take_bps": 4.72, "price": 3.72,
-                "vstar_25": 702.0, "vstar_16": 450.0, "current_vol": 125.3}
+    fallback = {"take_bps": 5.216, "price": 3.5118584696509734,
+                "vstar_25": 604.8, "vstar_16": 387.1, "current_vol": 125.8,
+                "supply": 1311421234, "capture": 0.326, "run_date": "13 Nov 2026"}
     try:
         m = json.loads((ROOT / "data" / "model_outputs.json").read_text())
         inp = m["inputs"]
@@ -217,11 +217,22 @@ def _fig7_inputs():
         v25 = float(m["deflationary_threshold"]
                     ["daily_volume_usd_by_take_rate_bps"]
                     [str(int(inp["base_take_rate_bps"]))]) / 1e6
+        run_date = "13 Nov 2026"
+        gen = str(m.get("generated_at_utc") or m.get("generated_at") or "")
+        if gen:
+            try:
+                dt = datetime.datetime.fromisoformat(gen.replace("Z", "+00:00"))
+                run_date = dt.strftime("%d %b %Y")
+            except Exception:
+                pass
         return {"take_bps": take * 10000.0,
                 "price": float(inp["near_price_usd"]),
                 "vstar_25": v25,
                 "vstar_16": v25 * 1.6 / 2.5,
-                "current_vol": float(inp["daily_intents_volume_usd"]) / 1e6}
+                "current_vol": float(inp["daily_intents_volume_usd"]) / 1e6,
+                "supply": float(inp.get("total_supply_near") or 1311421234),
+                "capture": float(inp["fee_capture_rate"]),
+                "run_date": run_date}
     except Exception:
         return fallback
 
@@ -229,8 +240,11 @@ def _fig7_inputs():
 _FIG7 = _fig7_inputs()
 TAKE_BPS = _FIG7["take_bps"]   # net take rate, basis points (measured)
 PRICE = _FIG7["price"]         # NEAR price, USD (model inputs)
-MINT_25 = 89822.0      # NEAR/day at 2.5% max inflation (formula: S*i/365)
-MINT_16 = 57300.0      # NEAR/day at 1.6% HSP-029 target (HSP-029: 89.5K -> 57.3K)
+SUPPLY = _FIG7["supply"]       # total NEAR supply (model inputs)
+CAPTURE = _FIG7["capture"]     # fee capture rate (model inputs)
+RUN_DATE = _FIG7["run_date"]   # model run date, e.g. "13 Nov 2026"
+MINT_25 = SUPPLY * 0.025 / 365  # NEAR/day at 2.5% max inflation (S*i/365)
+MINT_16 = SUPPLY * 0.016 / 365  # NEAR/day at 1.6% HSP-029 target
 VSTAR_25 = _FIG7["vstar_25"]   # $M/day, model V* at 2.5% (measured inputs)
 VSTAR_16 = _FIG7["vstar_16"]   # $M/day, model V* at 1.6% (scaled by 1.6/2.5)
 CURRENT_VOL = _FIG7["current_vol"]  # $M/day, current 30-day run-rate (model)
@@ -466,11 +480,11 @@ def fig7():
     """The deflation threshold model (PDF §3.3, Figure 7).
 
     Model chart from the MEASURED inputs (see _fig7_inputs, read from
-    data/model_outputs.json): net take rate 4.72 bps (16 bps gross x 29.5%
-    capture), NEAR $3.72, mint 89,822 NEAR/day at 2.5% and 57,300 NEAR/day
-    at 1.6%. Teal line = NEAR removed/day via revenue; dashed lines = the
-    two mints; X markers = the two V* intersections; red dot = the current
-    $125M/day run-rate.
+    data/model_outputs.json): net take rate 5.22 bps (16 bps gross x 32.6%
+    capture), NEAR $3.51, mint 89,814 NEAR/day at 2.5% and 57,481 NEAR/day
+    at 1.6%. Teal line = NEAR removed/day via revenue (matches the PDF's
+    teal line); dashed lines = the two mints; X markers = the two V*
+    intersections; red dot = the current $126M/day run-rate.
     """
     take = TAKE_BPS / 1e4
     # NEAR removed per $M of daily volume, in thousands of NEAR/day.
@@ -478,10 +492,9 @@ def fig7():
     xs = [0.0, 800.0]
     ys = [x * per_m for x in xs]
     # Formula cross-check: same inputs through V* = (i x S / 365 x P) / tau.
-    # It lands a touch above the model markers ($708M vs $702M) because the
-    # model divides the issuance VALUE ($121.0M) while the formula divides
-    # supply x price ($122.1M) — same inputs, different rounding base.
-    supply = 1311.4e6
+    # It agrees with the model markers ($605M / $387M) to within $1M —
+    # both divide the same issuance value ($115.1M).
+    supply = SUPPLY
     v25 = supply * 0.025 / 365 * PRICE / take / 1e6
     v16 = supply * 0.016 / 365 * PRICE / take / 1e6
     print(f"fig7: formula V* = ${v25:.1f}M/day at 2.5%, ${v16:.1f}M/day at 1.6% "
@@ -521,8 +534,8 @@ def fig7():
     ax.set_title("The deflation threshold model", fontsize=12, color=TEXT, pad=10)
     ax.legend(loc="lower right", fontsize=9, labelcolor=TEXT)
     style_ax(ax)
-    source_line(fig, f"Model inputs (measured 12 Nov 2026): net take {TAKE_BPS:.2f} bps "
-                     f"(16 bps gross x 29.5% capture), NEAR ${PRICE:.2f}, "
+    source_line(fig, f"Model inputs (measured {RUN_DATE}): net take {TAKE_BPS:.2f} bps "
+                     f"(16 bps gross x {CAPTURE * 100:.1f}% capture), NEAR ${PRICE:.2f}, "
                      f"mint {MINT_25:,.0f} NEAR/day (2.5%) / {MINT_16:,.0f} (1.6%). "
                      f"Retrieved {FETCHED}")
     fig.tight_layout(rect=(0, 0.03, 1, 1))

@@ -38,19 +38,20 @@ issuance:
 fee:
   # Fee take rate: the share of Intents volume kept as protocol fees
   # (GROSS take = gross fees / volume). MEASURED from the shipped
-  # DefiLlama CSVs: 60d gross take 16.42 bps (fees $13,945,801 /
-  # volume $8,495,272,764, 2026-09-12..2026-11-10); 30d gross take
-  # 15.86 bps. Base case 16 bps is the rounded measured value.
+  # DefiLlama CSVs: 60d gross take 16.30 bps (fees $13,997,897 /
+  # volume $8,585,829,851, 2026-09-14..2026-11-12); 30d gross take
+  # 15.39 bps. Base case 16 bps is the rounded measured value.
   # Sensitivity is shown at 5/10/16/20 bps.
   take_rates_bps: [5, 10, 16, 20]
   base_take_rate_bps: 16
   # Fee capture rate: share of gross Intents fees that reaches NEAR
-  # (buybacks). MEASURED 32.6% over 60d (checker F2: net $4.55M /
-  # gross $13.95M, 2026-09-12..2026-11-10). The checker counts the
-  # partial current month from the daily revenue series (the monthly
-  # value is month-to-date, not full-month — see check_falsifiers.py).
-  # Was a 0.26 placeholder; replaced 12 Nov 2026 once measured, and
-  # corrected from 29.5% the same day when the pro-rata bug was fixed.
+  # (buybacks). Model input 32.6%; checker F2 measures 32.2% over 60d
+  # (net $4.50M / gross $14.00M, 2026-09-14..2026-11-12). The checker
+  # counts the partial current month from the daily revenue series (the
+  # monthly value is month-to-date, not full-month — see
+  # check_falsifiers.py). Was a 0.26 placeholder; replaced 12 Nov 2026
+  # once measured, and corrected from 29.5% the same day when the
+  # pro-rata bug was fixed.
   capture_rate: 0.326
   # true = capture_rate is an unmeasured assumption; model_outputs.json
   # is then flagged placeholder.

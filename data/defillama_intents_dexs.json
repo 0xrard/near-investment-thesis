@@ -1,6 +1,6 @@
 {
   "address": null,
-  "annualized1y": 32910846701,
+  "annualized1y": 32927090833,
   "audit_links": null,
   "audits": "0",
   "breakdownMethodology": null,
@@ -8,31 +8,31 @@
   "chain": "Near",
   "chainBreakdown": {
     "Near": {
-      "annualized1y": 32910846701,
-      "average1y": 90166703.29041097,
-      "change_1d": -8.11,
-      "change_1m": 24.42,
-      "change_30dover30d": -20.68,
-      "change_7d": 10.76,
-      "change_7dover7d": 4.85,
-      "monthlyAverage1y": 2744674448.16011,
-      "total14dto7d": 894574772,
-      "total1y": 32910846701,
-      "total24h": 152754904,
-      "total30DaysAgo": 122774330,
-      "total30d": 3757732084,
-      "total48hto24h": 166233299,
-      "total60dto30d": 4737540680,
-      "total7DaysAgo": 137911779,
-      "total7d": 937972093,
-      "totalAllTime": 37324522122,
-      "totalLastFullDay": 152754904
+      "annualized1y": 32927090833,
+      "average1y": 90211207.76164384,
+      "change_1d": 55.97,
+      "change_1m": 32.02,
+      "change_30dover30d": -21.56,
+      "change_7d": 34.67,
+      "change_7dover7d": 4.05,
+      "monthlyAverage1y": 2746029164.2644386,
+      "total14dto7d": 915466658,
+      "total1y": 32927090833,
+      "total24h": 176440686,
+      "total30DaysAgo": 133642221,
+      "total30d": 3774153452,
+      "total48hto24h": 113124728,
+      "total60dto30d": 4811676399,
+      "total7DaysAgo": 131020261,
+      "total7d": 952535842,
+      "totalAllTime": 37614087536,
+      "totalLastFullDay": 176440686
     }
   },
   "chains": [
     "Near"
   ],
-  "change_1d": -8.11,
+  "change_1d": 55.97,
   "cmcId": null,
   "defaultChartView": null,
   "defillamaId": "6225",
@@ -66,12 +66,12 @@
   "protocolType": "protocol",
   "slug": "near-intents",
   "symbol": "NEAR",
-  "total1y": 32910846701,
-  "total24h": 152754904,
-  "total30d": 3757732084,
-  "total48hto24h": 166233299,
-  "total7d": 937972093,
-  "totalAllTime": 37324522122,
+  "total1y": 32927090833,
+  "total24h": 176440686,
+  "total30d": 3774153452,
+  "total48hto24h": 113124728,
+  "total7d": 952535842,
+  "totalAllTime": 37614087536,
   "totalDataChart": [
     [
       1733788800,
@@ -2876,6 +2876,14 @@
     [
       1794268800,
       152754904
+    ],
+    [
+      1794355200,
+      113124728
+    ],
+    [
+      1794441600,
+      176440686
     ]
   ],
   "totalDataChartBreakdown": [
@@ -8484,6 +8492,22 @@
       {
         "Near": {
           "NEAR Intents": 152754904
+        }
+      }
+    ],
+    [
+      1794355200,
+      {
+        "Near": {
+          "NEAR Intents": 113124728
+        }
+      }
+    ],
+    [
+      1794441600,
+      {
+        "Near": {
+          "NEAR Intents": 176440686
         }
       }
     ]

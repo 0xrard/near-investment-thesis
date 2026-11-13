@@ -42,11 +42,11 @@ def read_json(path: Path):
 
 def snap_line(model: dict | None, falsifiers: dict | None) -> str:
     """Build the SNAP fallback line from the current JSON files."""
-    f1_reading = 125257736
-    f1_win = "2026-10-12..2026-11-10"
-    f2_snap = "net take 5.46 bps, capture 33.3%, 60 days 2026-09-12..2026-11-10"
+    f1_reading = 125805115
+    f1_win = "2026-10-14..2026-11-12"
+    f2_snap = "net take 5.24 bps, capture 32.2%, 60 days 2026-09-14..2026-11-12"
     check_date = "13 Nov 2026"
-    price = 3.723543861613437
+    price = 3.5118584696509734
     capture_txt = "32.6%"
     triggered = 0
 

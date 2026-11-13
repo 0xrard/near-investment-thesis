@@ -7,6 +7,12 @@ Submission deadline: **14 November 2026, 23:59 UTC**.
 
 > NEAR is becoming the settlement layer for cross-chain value transfer — and Intents volume is the metric that proves it — but the market has already priced in the delivery.
 
+## For judges
+
+- **Latest run (13 Nov 2026): 0 of 6 falsifiers triggered** — 4 not triggered, 1 not yet decidable (F3), 1 cannot check (F5). Full results in [`data/falsifiers.json`](data/falsifiers.json) (generated 2026-11-13T14:31 UTC, data as of 2026-11-12).
+- **Live Check — re-run the numbers in your browser:** [Live Check](https://0xrard.github.io/near-investment-thesis/dashboard/index-generated.html) fetches DefiLlama live on every open, re-tests F1 against the $75M/day floor, and recomputes V\* at the live price.
+- **Re-run the model yourself:** `bash rebuild.sh --model-only` — no credentials needed.
+
 ## The hypothesis we test
 
 Cross-chain volume through NEAR Intents is a better **leading indicator** of real network usage than token price. We test it three ways:

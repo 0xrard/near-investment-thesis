@@ -31,6 +31,7 @@ The model does NOT output a NEAR price target (see THESIS.md §6).
 import csv
 import json
 import math
+import random
 import statistics
 import sys
 from datetime import date as _date, datetime, timedelta, timezone
@@ -465,6 +466,59 @@ def main() -> int:
                 "noise_band_95": band,
                 "best_is_significant": abs(valid[best]) > band,
             })
+            # Placebo (permutation) test: is the best-lag |r| distinguishable
+            # from noise? Shuffle the price log-returns across dates (breaks
+            # the time alignment with volume, keeps the marginal
+            # distribution), re-run the SAME lag scan (max |r| over lags
+            # -7..7), repeat. p = share of permutations whose max |r| is at
+            # least the observed one. A high p means the observed best |r| is
+            # what random shuffling produces anyway — the lead/lag result is
+            # not evidence of a timing edge. Fixed seed + fixed N make this
+            # deterministic and re-runnable.
+            rng = random.Random(20261113)
+            n_perm = 1000
+            px_dates = sorted(px_ret)
+            px_vals = [px_ret[d] for d in px_dates]
+            obs_best_abs = abs(valid[best])
+            max_abs_rs = []
+            for _ in range(n_perm):
+                shuffled = px_vals[:]
+                rng.shuffle(shuffled)
+                px_shuf = dict(zip(px_dates, shuffled))
+                best_abs = 0.0
+                for lag in range(-7, 8):
+                    xs, ys = [], []
+                    for d, r in px_shuf.items():
+                        vd = shift(d, -lag)
+                        if vd in vol_ret:
+                            xs.append(vol_ret[vd])
+                            ys.append(r)
+                    if len(xs) >= 30:
+                        r_lag = pearson(xs, ys)
+                        if r_lag is not None and abs(r_lag) > best_abs:
+                            best_abs = abs(r_lag)
+                max_abs_rs.append(best_abs)
+            n_ge = sum(1 for v in max_abs_rs if v >= obs_best_abs)
+            p_val = (n_ge + 1) / (n_perm + 1)
+            max_abs_rs.sort()
+            lead_lag["placebo"] = {
+                "method": ("Permutation test: price log-returns shuffled across dates "
+                           "(1000 permutations, seed 20261113); same lag scan "
+                           "(max |r| over lags -7..7) re-run on each shuffle."),
+                "n_permutations": n_perm,
+                "seed": 20261113,
+                "observed_best_abs_r": obs_best_abs,
+                "placebo_max_abs_r_mean": sum(max_abs_rs) / len(max_abs_rs),
+                "placebo_max_abs_r_p95": max_abs_rs[int(0.95 * len(max_abs_rs))],
+                "p_value": p_val,
+                "interpretation": ("Observed best |r| is NOT distinguishable from noise "
+                                   "(p >= 0.05): the lead/lag scan finds nothing a random "
+                                   "shuffle would not also find. No exploitable timing edge."
+                                   if p_val >= 0.05 else
+                                   "Observed best |r| IS distinguishable from noise "
+                                   "(p < 0.05): the lead/lag scan finds more than random "
+                                   "shuffling produces."),
+            }
         else:
             lead_lag["reason"] = "Not enough overlapping days (<30) at any lag."
     else:
@@ -532,7 +586,8 @@ def main() -> int:
     print(f"model: P/F = {p_to_fees:.1f}x" if p_to_fees is not None else "model: P/F = — (inputs missing)")
     print(f"model: tests A={test_a['status']}, B={test_b['status']}, "
           f"lead/lag={lead_lag['status']}"
-          + (f" (best lag {lead_lag['best_lag_days']}d)" if lead_lag.get("best_lag_days") is not None else ""))
+          + (f" (best lag {lead_lag['best_lag_days']}d)" if lead_lag.get("best_lag_days") is not None else "")
+          + (f", placebo p={lead_lag['placebo']['p_value']:.3f}" if lead_lag.get("placebo") else ""))
     return 0
 
 

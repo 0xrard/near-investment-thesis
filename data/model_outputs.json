@@ -1,11 +1,11 @@
 {
-  "generated_at_utc": "2026-11-13T10:28:47+00:00",
+  "generated_at_utc": "2026-11-13T14:30:27+00:00",
   "placeholder": false,
   "placeholder_inputs": [],
   "inputs": {
-    "daily_intents_volume_usd": 125257736.13333334,
-    "daily_intents_volume_source": "DefiLlama /summary/dexs (30-day average, 2026-10-12 to 2026-11-10)",
-    "near_price_usd": 3.723543861613437,
+    "daily_intents_volume_usd": 125805115.06666666,
+    "daily_intents_volume_source": "DefiLlama /summary/dexs (30-day average, 2026-10-14 to 2026-11-12)",
+    "near_price_usd": 3.5118584696509734,
     "near_price_source": "CoinGecko market_chart",
     "total_supply_near": 1311421234.0,
     "total_supply_source": "model/config.yaml",
@@ -23,39 +23,39 @@
     "projection_years": 5
   },
   "hero_stats": {
-    "cumulative_intents_volume_usd": 37324522122.0,
+    "cumulative_intents_volume_usd": 37614087536.0,
     "cumulative_intents_volume_source": "DefiLlama /summary/dexs (totalAllTime)",
-    "cumulative_intents_volume_as_of": "2026-11-11T15:06:03+00:00",
-    "annualised_fees_usd": 71529432.0,
+    "cumulative_intents_volume_as_of": "2026-11-13T11:16:50+00:00",
+    "annualised_fees_usd": 69688704.0,
     "annualised_fees_definition": "Gross Intents fees, 30-day run-rate (total30d x 12)",
     "annualised_fees_source": "DefiLlama /summary/fees (total30d x 12)",
-    "annualised_fees_as_of": "2026-11-11T15:06:04+00:00",
-    "market_cap_usd": 4882342987.0,
+    "annualised_fees_as_of": "2026-11-13T11:16:51+00:00",
+    "market_cap_usd": 4606063089.0,
     "market_cap_source": "CoinGecko /coins/near",
-    "market_cap_as_of": "2026-11-11T15:06:01+00:00",
+    "market_cap_as_of": "2026-11-13T11:16:49+00:00",
     "inflation_rate": 0.025,
     "inflation_source": "Protocol parameter (5% -> 2.5% on 30 Oct 2025)"
   },
   "deflationary_threshold": {
     "daily_volume_usd_by_take_rate_bps": {
-      "5": 2051909608.3075128,
-      "10": 1025954804.1537564,
-      "16": 641221752.5960976,
-      "20": 512977402.0768782
+      "5": 1935257487.1430504,
+      "10": 967628743.5715252,
+      "16": 604767964.7322031,
+      "20": 483814371.7857626
     },
-    "annual_issuance_value_usd": 122078362.14625546,
+    "annual_issuance_value_usd": 115138144.19757578,
     "note": "Daily Intents volume at which buybacks offset new issuance. Price-dependent: the higher the NEAR price, the further the threshold. Recomputed from primary data \u2014 never copied from any published figure."
   },
   "scenarios": [
     {
       "name": "bear",
       "annual_growth": 0.0,
-      "annual_settlement_volume_usd": 45719073688.66667,
+      "annual_settlement_volume_usd": 45918866999.33333,
       "annual_fee_revenue_usd_by_bps": {
-        "5": 22859536.844333336,
-        "10": 45719073.68866667,
-        "16": 73150517.90186667,
-        "20": 91438147.37733334
+        "5": 22959433.49966666,
+        "10": 45918866.99933332,
+        "16": 73470187.19893332,
+        "20": 91837733.99866664
       },
       "fee_revenue_basis": "gross protocol fees (volume x take rate), before capture_rate",
       "what_must_be_true": "Intents volume flat; no new chains or solvers; on-chain activity keeps falling."
@@ -63,12 +63,12 @@
     {
       "name": "base",
       "annual_growth": 0.15,
-      "annual_settlement_volume_usd": 91957387469.54182,
+      "annual_settlement_volume_usd": 92359243180.96562,
       "annual_fee_revenue_usd_by_bps": {
-        "5": 45978693.73477091,
-        "10": 91957387.46954182,
-        "16": 147131819.9512669,
-        "20": 183914774.93908364
+        "5": 46179621.590482816,
+        "10": 92359243.18096563,
+        "16": 147774789.08954498,
+        "20": 184718486.36193126
       },
       "fee_revenue_basis": "gross protocol fees (volume x take rate), before capture_rate",
       "what_must_be_true": "Intents volume grows with cross-chain demand; on-chain activity holds; fee capture stable."
@@ -76,12 +76,12 @@
     {
       "name": "bull",
       "annual_growth": 0.3,
-      "annual_settlement_volume_usd": 169751720270.86118,
+      "annual_settlement_volume_usd": 170493538847.83472,
       "annual_fee_revenue_usd_by_bps": {
-        "5": 84875860.13543059,
-        "10": 169751720.27086118,
-        "16": 271602752.43337786,
-        "20": 339503440.54172236
+        "5": 85246769.42391735,
+        "10": 170493538.8478347,
+        "16": 272789662.15653557,
+        "20": 340987077.6956694
       },
       "fee_revenue_basis": "gross protocol fees (volume x take rate), before capture_rate",
       "what_must_be_true": "Intents becomes the default cross-chain rail; agent-economy volume adds a second leg."
@@ -101,26 +101,26 @@
     ],
     "annual_fee_revenue_usd": {
       "0.0": {
-        "5": 22859536.844333336,
-        "10": 45719073.68866667,
-        "16": 73150517.90186667,
-        "20": 91438147.37733334
+        "5": 22959433.49966666,
+        "10": 45918866.99933332,
+        "16": 73470187.19893332,
+        "20": 91837733.99866664
       },
       "0.15": {
-        "5": 45978693.73477091,
-        "10": 91957387.46954182,
-        "16": 147131819.9512669,
-        "20": 183914774.93908364
+        "5": 46179621.590482816,
+        "10": 92359243.18096563,
+        "16": 147774789.08954498,
+        "20": 184718486.36193126
       },
       "0.3": {
-        "5": 84875860.13543059,
-        "10": 169751720.27086118,
-        "16": 271602752.43337786,
-        "20": 339503440.54172236
+        "5": 85246769.42391735,
+        "10": 170493538.8478347,
+        "16": 272789662.15653557,
+        "20": 340987077.6956694
       }
     }
   },
-  "p_to_fees": 68.25642047597974,
+  "p_to_fees": 66.09483064859407,
   "p_to_fees_note": "Market cap / annualised gross fees (30d x 12). Nino's 9 Nov 2026 dossier input (P/F 58.8x) was computed at that earlier date; compare only at the same date.",
   "hypothesis_tests": {
     "A_sticky": {
@@ -133,22 +133,22 @@
       "method": "Pearson r on daily log changes (primary); levels below are descriptive only",
       "correlations": {
         "active_accounts": {
-          "n_days": 363,
-          "pearson_r": 0.018068871924604532
+          "n_days": 364,
+          "pearson_r": 0.030092692236456522
         },
         "tx_count": {
-          "n_days": 363,
-          "pearson_r": 0.2006239039929616
+          "n_days": 364,
+          "pearson_r": 0.20181205063616875
         }
       },
       "correlations_levels": {
         "active_accounts": {
-          "n_days": 364,
-          "pearson_r": -0.18922103653168482
+          "n_days": 365,
+          "pearson_r": -0.1901154200951336
         },
         "tx_count": {
-          "n_days": 364,
-          "pearson_r": -0.10246742131248826
+          "n_days": 365,
+          "pearson_r": -0.10334999725797388
         }
       }
     },
@@ -159,131 +159,141 @@
       "lags": {
         "-7": {
           "n_days": 356,
-          "pearson_r": 0.01139309313835711
+          "pearson_r": 0.016917870395809668
         },
         "-6": {
           "n_days": 357,
-          "pearson_r": 0.04248529661925365
+          "pearson_r": 0.03591086074510572
         },
         "-5": {
           "n_days": 358,
-          "pearson_r": -0.026953901094203165
+          "pearson_r": -0.021651723303511873
         },
         "-4": {
           "n_days": 359,
-          "pearson_r": -0.04021875969287517
+          "pearson_r": -0.04010121864461645
         },
         "-3": {
           "n_days": 360,
-          "pearson_r": -0.09586985247454455
+          "pearson_r": -0.09856367635692351
         },
         "-2": {
           "n_days": 361,
-          "pearson_r": 0.08442553137527917
+          "pearson_r": 0.0866834544091045
         },
         "-1": {
           "n_days": 362,
-          "pearson_r": 0.08467597423508362
+          "pearson_r": 0.08229618254222758
         },
         "0": {
           "n_days": 363,
-          "pearson_r": -0.07698042069277579
+          "pearson_r": -0.07578334864997244
         },
         "1": {
           "n_days": 364,
-          "pearson_r": 0.04127510092802119
+          "pearson_r": 0.039518841856997985
         },
         "2": {
           "n_days": 364,
-          "pearson_r": 0.019244431881359714
+          "pearson_r": 0.01903966352949119
         },
         "3": {
           "n_days": 364,
-          "pearson_r": 0.04132246775716675
+          "pearson_r": 0.04297804447421108
         },
         "4": {
           "n_days": 364,
-          "pearson_r": 0.023305690772042836
+          "pearson_r": 0.02307666476045431
         },
         "5": {
           "n_days": 364,
-          "pearson_r": -0.028631416376195932
+          "pearson_r": -0.030504158317966296
         },
         "6": {
           "n_days": 364,
-          "pearson_r": 0.0007678243295212786
+          "pearson_r": -0.00021474791591182522
         },
         "7": {
           "n_days": 364,
-          "pearson_r": -0.05640766598770444
+          "pearson_r": -0.055359872080313066
         }
       },
       "lags_levels": {
         "-7": {
           "n_days": 357,
-          "pearson_r": 0.45787263808050865
+          "pearson_r": 0.46353290280284876
         },
         "-6": {
           "n_days": 358,
-          "pearson_r": 0.45924386585043564
+          "pearson_r": 0.46291749006234495
         },
         "-5": {
           "n_days": 359,
-          "pearson_r": 0.4628590096449837
+          "pearson_r": 0.46679215815140196
         },
         "-4": {
           "n_days": 360,
-          "pearson_r": 0.47461594453919503
+          "pearson_r": 0.47845943024307
         },
         "-3": {
           "n_days": 361,
-          "pearson_r": 0.4875448854424733
+          "pearson_r": 0.490775509227867
         },
         "-2": {
           "n_days": 362,
-          "pearson_r": 0.5116921634547308
+          "pearson_r": 0.5151587267612922
         },
         "-1": {
           "n_days": 363,
-          "pearson_r": 0.5215106672745033
+          "pearson_r": 0.5247899051073037
         },
         "0": {
           "n_days": 364,
-          "pearson_r": 0.5180283880285329
+          "pearson_r": 0.5216768930454656
         },
         "1": {
           "n_days": 365,
-          "pearson_r": 0.526102543436574
+          "pearson_r": 0.529379460498432
         },
         "2": {
           "n_days": 365,
-          "pearson_r": 0.5384424705363061
+          "pearson_r": 0.5404830872562153
         },
         "3": {
           "n_days": 365,
-          "pearson_r": 0.5439678529991095
+          "pearson_r": 0.5490102914849543
         },
         "4": {
           "n_days": 365,
-          "pearson_r": 0.5490194358475503
+          "pearson_r": 0.5499503335058952
         },
         "5": {
           "n_days": 365,
-          "pearson_r": 0.5436964341789225
+          "pearson_r": 0.544384166826482
         },
         "6": {
           "n_days": 365,
-          "pearson_r": 0.5445543931929305
+          "pearson_r": 0.5490655321405405
         },
         "7": {
           "n_days": 365,
-          "pearson_r": 0.5416555335349157
+          "pearson_r": 0.5447800675566006
         }
       },
       "best_lag_days": -3,
-      "best_pearson_r": -0.09586985247454455,
+      "best_pearson_r": -0.09856367635692351,
       "noise_band_95": 0.10330107023216706,
-      "best_is_significant": false
+      "best_is_significant": false,
+      "placebo": {
+        "method": "Permutation test: price log-returns shuffled across dates (1000 permutations, seed 20261113); same lag scan (max |r| over lags -7..7) re-run on each shuffle.",
+        "n_permutations": 1000,
+        "seed": 20261113,
+        "observed_best_abs_r": 0.09856367635692351,
+        "placebo_max_abs_r_mean": 0.10496010710860654,
+        "placebo_max_abs_r_p95": 0.15286160589129094,
+        "p_value": 0.5574425574425574,
+        "interpretation": "Observed best |r| is NOT distinguishable from noise (p >= 0.05): the lead/lag scan finds nothing a random shuffle would not also find. No exploitable timing edge."
+      }
     }
   }
 }

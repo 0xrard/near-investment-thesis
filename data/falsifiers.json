@@ -1,13 +1,13 @@
 {
- "generated_at_utc": "2026-11-13T10:29:18.506377+00:00",
- "data_as_of": "2026-11-10",
+ "generated_at_utc": "2026-11-13T14:31:02.413583+00:00",
+ "data_as_of": "2026-11-12",
  "falsifiers": [
   {
    "id": "F1",
    "name": "Intents volume falls below $75M/day (30d avg)",
    "threshold": "volume_30d_avg < $75,000,000/day",
-   "reading": 125257736.13333334,
-   "reading_text": "$125.26M/day over 2026-10-12..2026-11-10",
+   "reading": 125805115.06666666,
+   "reading_text": "$125.81M/day over 2026-10-14..2026-11-12",
    "status": "not_triggered",
    "evidence": "30d mean of data/intents_volume_daily.csv (30 days).",
    "source": "DefiLlama daily Intents volume (shipped CSV)"
@@ -17,15 +17,15 @@
    "name": "Take < 3 bps or capture < 15% (60d)",
    "threshold": "take < 3 bps OR capture < 15%",
    "reading": {
-    "take_bps": 5.471563180836635,
-    "capture_pct": 33.330765057286186,
-    "net_60d_usd": 4648242.166666667,
-    "gross_60d_usd": 13945801.0,
-    "volume_60d_usd": 8495272764.0
+    "take_bps": 5.243304271641258,
+    "capture_pct": 32.160629795556666,
+    "net_60d_usd": 4501811.833333333,
+    "gross_60d_usd": 13997897.0,
+    "volume_60d_usd": 8585829851.0
    },
-   "reading_text": "take 5.47 bps (net), capture 33.3% over 2026-09-12..2026-11-10",
+   "reading_text": "take 5.24 bps (net), capture 32.2% over 2026-09-14..2026-11-12",
    "status": "not_triggered",
-   "evidence": "Net 60d $4.65M (monthly net pro-rated: Sep 26 (19/30d); Oct 26 (31/31d); Nov 26 (10d of MTD, daily series)); gross 60d $13.95M; volume 60d $8.50B.",
+   "evidence": "Net 60d $4.50M (monthly net pro-rated: Sep 26 (17/30d); Oct 26 (31/31d); Nov 26 (12d of MTD, daily series)); gross 60d $14.00M; volume 60d $8.59B.",
    "source": "revenue.near.org monthly net + daily revenue series + DefiLlama daily fees/volume (shipped CSVs)"
   },
   {

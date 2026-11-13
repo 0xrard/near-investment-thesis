@@ -11,6 +11,15 @@
   body{margin:0;background:var(--bg);color:var(--ink);
     font-family:ui-sans-system,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.5}
   .wrap{max-width:960px;margin:0 auto;padding:30px 18px 46px}
+  .topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+  .back-btn{display:inline-block;padding:7px 14px;border:1px solid var(--accent);border-radius:999px;
+    color:var(--accent);text-decoration:none;font-size:13px;font-weight:700;white-space:nowrap}
+  .back-btn:hover{background:var(--accent);color:#fff}
+  .rerun-btn{display:inline-block;padding:7px 14px;border:1px solid var(--accent);border-radius:999px;
+    background:var(--accent);color:#fff;font-size:13px;font-weight:700;white-space:nowrap;cursor:pointer;font-family:inherit}
+  .rerun-btn:hover{opacity:.9}
+  .rerun-btn:disabled{opacity:.5;cursor:wait}
+  .topbar .actions{display:flex;gap:8px;align-items:flex-start}
   .kicker{color:var(--accent);letter-spacing:.22em;font-size:12px;font-weight:600;text-transform:uppercase}
   h1{font-size:28px;margin:6px 0 6px}
   h1 .thin{color:var(--dim);font-weight:400}
@@ -40,9 +49,15 @@
 </head>
 <body>
 <div class="wrap">
-  <div class="kicker">NEAR Protocol — Beyond the Price</div>
+  <div class="topbar">
+    <div class="kicker">NEAR Protocol — Beyond the Price</div>
+    <div class="actions">
+      <button class="rerun-btn" id="rerunBtn" type="button" onclick="rerunLive()">&#8635; Rerun live</button>
+      <a class="back-btn" href="index.html">&larr; Back to dashboard</a>
+    </div>
+  </div>
   <h1>Live Check <span class="thin">— does the thesis still stand today?</span></h1>
-  <p class="sub">The thesis itself is a dated claim (snapshot 11 Nov 2026; falsifier check of <span id="snapDate">13 Nov 2026</span>:
+  <p class="sub">The thesis itself is a dated claim (snapshot 13 Nov 2026; falsifier check of <span id="snapDate">13 Nov 2026</span>:
   <b style="color:var(--ink)"><span id="snapSummary">0 of 6 triggered</span></b>). This page does not change it. When you open it, it fetches
   current data from the same keyless Tier-1 sources and re-tests, live, the falsifier thresholds that can be
   re-tested from a browser. Everything else keeps its snapshot status, labelled as such.</p>
@@ -54,7 +69,7 @@
       <div class="top"><span class="fid">F1 — LIVE RE-TEST</span><span class="chip na" id="f1chip">CHECKING</span></div>
       <p class="fname">Intents volume below $75M/day (30d avg) kills the demand claim</p>
       <div class="big" id="f1val">—</div>
-      <p class="det" id="f1det">Threshold: 30-day average under <b>$75,000,000/day</b>. Snapshot reading (<span id="f1win">2026-10-12..2026-11-10</span>): <span id="f1snap">$125.26M/day</span>.</p>
+      <p class="det" id="f1det">Threshold: 30-day average under <b>$75,000,000/day</b>. Snapshot reading (<span id="f1win">2026-10-14..2026-11-12</span>): <span id="f1snap">$125.81M/day</span>.</p>
       <p class="src">Source: api.llama.fi/summary/dexs/near-intents, fetched when this page loaded.</p>
     </div>
 
@@ -70,7 +85,7 @@
       <div class="top"><span class="fid">TAKE — LIVE CONTEXT</span><span class="chip na" id="tchip">CHECKING</span></div>
       <p class="fname">Gross fee take over the last 30 days</p>
       <div class="big" id="tval">—</div>
-      <p class="det" id="tdet">Context only — falsifier F2 is defined on the <b>net</b> take and capture, which need the monthly revenue series (snapshot: <span id="f2snap">net take 5.46 bps, capture 33.3%, 60 days 2026-09-12..2026-11-10</span>). Thesis 60-day gross take: 16.4 bps.</p>
+      <p class="det" id="tdet">Context only — falsifier F2 is defined on the <b>net</b> take and capture, which need the monthly revenue series (snapshot: <span id="f2snap">net take 5.24 bps, capture 32.2%, 60 days 2026-09-14..2026-11-12</span>). Thesis 60-day gross take: 16.4 bps.</p>
       <p class="src">Source: api.llama.fi/summary/fees/near-intents + the volume series above.</p>
     </div>
   </div>
@@ -94,7 +109,7 @@
 </div>
 
 <script>
-  var SNAP = { f1: 125257736, price: 3.723543861613437, takeGross60: 16.4, f1win: '2026-10-12..2026-11-10', captureTxt: '32.6%', f2snap: 'net take 5.47 bps, capture 33.3%, 60 days 2026-09-12..2026-11-10', summary: "0 of 6 triggered", checkDate: '13 Nov 2026' };  // fallback if repo files unreachable
+  var SNAP = { f1: 125805115, price: 3.5118584696509734, takeGross60: 16.4, f1win: '2026-10-14..2026-11-12', captureTxt: '32.6%', f2snap: 'net take 5.24 bps, capture 32.2%, 60 days 2026-09-14..2026-11-12', summary: "0 of 6 triggered", checkDate: '13 Nov 2026' };  // fallback if repo files unreachable
   var SUPPLY = 1311421234.0, CAPTURE = 0.326;  // fallback; replaced from data/model_outputs.json when served from the repo
 
   function fmtUSD(n){ return "$" + Math.round(n).toLocaleString("en-US"); }
@@ -112,7 +127,7 @@
   }
   function fallback(reason){
     document.getElementById("banner").textContent =
-      "Live fetch failed (" + reason + ") — showing the thesis snapshot values (11 Nov 2026), marked SNAPSHOT.";
+      "Live fetch failed (" + reason + ") — showing the thesis snapshot values (13 Nov 2026), marked SNAPSHOT.";
     document.getElementById("f1val").textContent = fmtM(SNAP.f1) + "/day — SNAPSHOT";
     setChip("f1chip", "NOT TRIGGERED (SNAPSHOT)", "ok");
     var v = vstar(SNAP.price, 0.025);
@@ -122,6 +137,7 @@
     setChip("pchip", "SNAPSHOT", "na");
     document.getElementById("tval").textContent = SNAP.takeGross60 + " bps (60d) — SNAPSHOT";
     setChip("tchip", "SNAPSHOT", "na");
+    rerunDone();
   }
 
   function avgTail(chart, n){
@@ -161,24 +177,52 @@
       "Context only — falsifier F2 is defined on the <b>net</b> take and capture, which need the monthly revenue series (snapshot: " + SNAP.f2snap + "). Thesis 60-day gross take: " + SNAP.takeGross60 + " bps.";
     setChip("tchip", "LIVE CONTEXT", "ok");
     bannerLive("Live data fetched from api.llama.fi / coins.llama.fi at " +
-      new Date().toLocaleString("en-GB") + " (your local time). Thesis snapshot: 11 Nov 2026.");
+      new Date().toLocaleString("en-GB") + " (your local time). Thesis snapshot: 13 Nov 2026.");
+    rerunDone();
   }
 
   function fail(which){
     if (got.failed) return; got.failed = true; fallback(which);
   }
-  fetch("https://api.llama.fi/summary/dexs/near-intents")
-    .then(function(r){ if (!r.ok) throw new Error("dexs"); return r.json(); })
-    .then(function(j){ got.vol = j.totalDataChart; maybeDone(); })
-    .catch(function(){ fail("volume"); });
-  fetch("https://api.llama.fi/summary/fees/near-intents")
-    .then(function(r){ if (!r.ok) throw new Error("fees"); return r.json(); })
-    .then(function(j){ got.fees = j.totalDataChart; maybeDone(); })
-    .catch(function(){ fail("fees"); });
-  fetch("https://coins.llama.fi/prices/current/coingecko:near")
-    .then(function(r){ if (!r.ok) throw new Error("price"); return r.json(); })
-    .then(function(j){ got.price = j.coins["coingecko:near"].price; maybeDone(); })
-    .catch(function(){ fail("price"); });
+  // Live fetches, wrapped so the "Rerun live" button can re-issue them on
+  // demand. runId makes a stale in-flight response (from a superseded run)
+  // a no-op instead of overwriting the fresh run's results.
+  var runId = 0;
+  function fetchLive(){
+    var myRun = ++runId;
+    function stale(){ return myRun !== runId; }
+    fetch("https://api.llama.fi/summary/dexs/near-intents")
+      .then(function(r){ if (!r.ok) throw new Error("dexs"); return r.json(); })
+      .then(function(j){ if (stale()) return; got.vol = j.totalDataChart; maybeDone(); })
+      .catch(function(){ if (stale()) return; fail("volume"); });
+    fetch("https://api.llama.fi/summary/fees/near-intents")
+      .then(function(r){ if (!r.ok) throw new Error("fees"); return r.json(); })
+      .then(function(j){ if (stale()) return; got.fees = j.totalDataChart; maybeDone(); })
+      .catch(function(){ if (stale()) return; fail("fees"); });
+    fetch("https://coins.llama.fi/prices/current/coingecko:near")
+      .then(function(r){ if (!r.ok) throw new Error("price"); return r.json(); })
+      .then(function(j){ if (stale()) return; got.price = j.coins["coingecko:near"].price; maybeDone(); })
+      .catch(function(){ if (stale()) return; fail("price"); });
+  }
+  function rerunLive(){
+    var btn = document.getElementById("rerunBtn");
+    if (btn) btn.disabled = true;
+    got = {};
+    setChip("f1chip", "CHECKING", "na");
+    setChip("pchip", "CHECKING", "na");
+    setChip("tchip", "CHECKING", "na");
+    document.getElementById("f1val").textContent = "—";
+    document.getElementById("pval").textContent = "—";
+    document.getElementById("tval").textContent = "—";
+    var b = document.getElementById("banner");
+    b.className = "banner"; b.textContent = "Fetching live data from api.llama.fi…";
+    fetchLive();
+  }
+  function rerunDone(){
+    var btn = document.getElementById("rerunBtn");
+    if (btn) btn.disabled = false;
+  }
+  fetchLive();
 
   // When served from the repo, adopt the CURRENT snapshot constants so a
   // re-run flows into this page: model inputs from data/model_outputs.json,
