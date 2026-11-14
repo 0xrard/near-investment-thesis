@@ -1,3 +1,5 @@
+> This is the working repo where the falsifiers were pre-registered. The final submission lives at [github.com/0xrard/Near-Hackathon](https://github.com/0xrard/Near-Hackathon).
+
 # NEAR Protocol — Beyond the Price
 
 **Investment Thesis track (INV), NEAR Hackathon 2026.**
