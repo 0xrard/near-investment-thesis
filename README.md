@@ -11,6 +11,7 @@ Submission deadline: **14 November 2026, 23:59 UTC**.
 
 - **Latest run (13 Nov 2026): 0 of 6 falsifiers triggered** — 4 not triggered, 1 not yet decidable (F3), 1 cannot check (F5). Full results in [`data/falsifiers.json`](data/falsifiers.json) (generated 2026-11-13T14:31 UTC, data as of 2026-11-12).
 - **Live Check — re-run the numbers in your browser:** [Live Check](https://0xrard.github.io/near-investment-thesis/dashboard/index-generated.html) fetches DefiLlama live on every open, re-tests F1 against the $75M/day floor, and recomputes V\* at the live price.
+- **Try to kill the thesis yourself:** [The Thesis, On Trial](https://0xrard.github.io/near-investment-thesis/dashboard/terminal-v5.html) — drag the sliders to push volume, capture, outflow, and the revenue run-rate past their falsifier thresholds and watch the verdict flip to "THESIS DEAD". F3 and F5 cannot be fired from the terminal (F3 is locked by time, F5 has no public data).
 - **Re-run the model yourself:** `bash rebuild.sh --model-only` — no credentials needed.
 
 ## The hypothesis we test

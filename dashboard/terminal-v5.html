@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NEAR — Beyond the Price · The Thesis, On Trial</title>
+<style>
+  :root{
+    --bg:#070b0e; --panel:#0c1317; --panel2:#101a1f; --line:#1d2c32;
+    --ink:#eef5f4; --dim:#8fa5a8; --teal:#2fe6c8; --amber:#f5b94b; --grey:#7d8b8e; --terra:#e07856; --red:#ff6b5e;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .mono{font-family:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace}
+  .wrap{max-width:1080px;margin:0 auto;padding:26px 18px 60px}
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;
+          border-bottom:1px solid var(--line);padding-bottom:14px}
+  .brand{font-weight:800;letter-spacing:.04em;text-transform:uppercase;font-size:14px}
+  .brand span{color:var(--teal)}
+  .stamp{color:var(--dim);font-size:12.5px}
+  .srcbadge{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:3px 11px;
+            font-size:11.5px;color:var(--dim);margin-top:10px}
+  .srcbadge b{color:var(--teal);font-weight:700}
+  h1{font-size:clamp(38px,7vw,68px);line-height:1.0;margin:28px 0 10px;text-transform:uppercase;font-weight:850}
+  h1 .v{color:var(--teal)} h1 .r{color:var(--red)}
+  .lede{color:var(--dim);font-size:16.5px;max-width:820px;margin:0 0 16px;line-height:1.55}
+  .lede b{color:var(--ink)}
+  .statusline{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0 4px}
+  .bigpill{font-size:15px;font-weight:800;letter-spacing:.05em;border-radius:999px;padding:8px 18px;text-transform:uppercase}
+  .pill-ok{background:rgba(47,230,200,.12);color:var(--teal);border:1px solid rgba(47,230,200,.5)}
+  .fact{color:var(--dim);font-size:13.5px}
+  .fact b{color:var(--ink)}
+  h2{font-size:21px;margin:42px 0 4px;text-transform:uppercase;letter-spacing:.03em}
+  .hsub{color:var(--dim);font-size:13.5px;margin:0 0 14px;max-width:840px;line-height:1.5}
+  .board{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}
+  .card.dead{border-color:rgba(255,107,94,.65)}
+  .card .row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .fid{font-weight:800;color:var(--teal);font-size:13px;letter-spacing:.06em}
+  .chip{font-size:11px;font-weight:700;letter-spacing:.05em;border-radius:999px;padding:3px 10px;text-transform:uppercase;white-space:nowrap}
+  .ok{background:rgba(47,230,200,.12);color:var(--teal);border:1px solid rgba(47,230,200,.45)}
+  .wait{background:rgba(245,185,75,.10);color:var(--amber);border:1px solid rgba(245,185,75,.45)}
+  .na{background:rgba(125,139,142,.12);color:var(--grey);border:1px solid rgba(125,139,142,.45)}
+  .deadchip{background:rgba(255,107,94,.13);color:var(--red);border:1px solid rgba(255,107,94,.55)}
+  .warnchip{background:rgba(245,185,75,.16);color:var(--amber);border:1px solid rgba(245,185,75,.6)}
+  .card.weak{border-color:rgba(245,185,75,.55)}
+  .tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.06em;border-radius:999px;
+       padding:3px 11px;text-transform:uppercase;border:1px solid rgba(47,230,200,.5);color:var(--teal)}
+  .tag.scen{border-color:rgba(245,185,75,.6);color:var(--amber)}
+  .bridge{display:flex;align-items:stretch;gap:0;flex-wrap:wrap}
+  .bstep{flex:1 1 180px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:15px}
+  .bstep .bk{color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.07em}
+  .bstep .bv{font-size:22px;font-weight:800;margin:4px 0 5px;font-variant-numeric:tabular-nums}
+  .bstep .bt{font-size:11px;color:var(--amber);text-transform:uppercase;letter-spacing:.05em}
+  .barrow{align-self:center;padding:0 7px;color:var(--teal);font-size:19px;font-weight:800}
+  @media (max-width:640px){ .barrow{transform:rotate(90deg);padding:4px 0} .bridge{flex-direction:column} }
+  .fname{font-size:16.5px;font-weight:650;margin:8px 0 4px}
+  .thr{color:var(--dim);font-size:12.5px}
+  .thr code{color:var(--ink);background:var(--panel2);padding:1px 6px;border-radius:6px;font-size:12px}
+  .reading{margin-top:10px;font-size:14px;background:var(--panel2);border:1px solid var(--line);
+           border-radius:10px;padding:9px 11px}
+  .src{color:var(--dim);font-size:11.5px;margin-top:9px}
+  .margin{margin-top:12px}
+  .margin .mlab{display:flex;justify-content:space-between;color:var(--dim);font-size:11.5px;margin-bottom:4px}
+  .margin .mlab b{color:var(--ink)}
+  .bar{position:relative;height:8px;background:#16222a;border-radius:99px;overflow:visible}
+  .bar .fill{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:var(--teal)}
+  .bar .fill.low{background:var(--amber)}
+  .bar .tick{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--red);border-radius:2px}
+  .bar .tick:after{content:"kill line";position:absolute;top:-14px;right:-4px;font-size:9.5px;color:var(--red);
+                   letter-spacing:.05em;text-transform:uppercase;white-space:nowrap}
+  .killbox{background:linear-gradient(180deg,#0d1512,#0c1317);border:1px solid #274b41;border-radius:16px;padding:20px}
+  .killgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px 24px}
+  label.sl{display:block;font-size:13px;color:var(--dim)}
+  label.sl b{color:var(--ink);float:right;font-variant-numeric:tabular-nums}
+  input[type=range]{width:100%;accent-color:var(--teal);margin-top:6px}
+  .killbox input[type=range]{accent-color:var(--red)}
+  .verdict{margin-top:18px;border-radius:12px;padding:14px 16px;font-size:16px;font-weight:700;
+           border:1px solid rgba(47,230,200,.5);background:rgba(47,230,200,.08);color:var(--teal)}
+  .verdict.dead{border-color:rgba(255,107,94,.6);background:rgba(255,107,94,.08);color:var(--red)}
+  .verdict small{display:block;font-weight:400;color:var(--dim);font-size:12.5px;margin-top:4px}
+  .resetbtn{margin-top:12px;background:none;border:1px solid var(--line);color:var(--ink);border-radius:999px;
+            padding:6px 16px;font-size:12.5px;cursor:pointer}
+  .strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:8px 0}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:13px 14px}
+  .stat .k{color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.08em}
+  .stat .val{font-size:23px;font-weight:800;margin-top:3px;font-variant-numeric:tabular-nums}
+  .stat .sub{color:var(--dim);font-size:12px;margin-top:2px}
+  .chartbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}
+  .chartbox svg{width:100%;height:auto;display:block}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;color:var(--dim);font-size:12.5px;margin-top:8px}
+  .legend i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+  .engine{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
+  .sliders{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px 22px}
+  .vout{display:flex;gap:26px;flex-wrap:wrap;margin-top:16px;border-top:1px solid var(--line);padding-top:14px}
+  .annotes{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;margin-top:14px}
+  .anote{border:1px solid var(--line);border-radius:10px;padding:11px 13px;background:var(--panel2)}
+  .anote h4{margin:0 0 5px;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--terra)}
+  .anote p{margin:0;font-size:12.8px;line-height:1.55;color:var(--dim)}
+  .anote p b{color:var(--ink)}
+  .vout .big{font-size:27px;font-weight:800}
+  .vout .cap{color:var(--dim);font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+  .note{color:var(--dim);font-size:12.5px;margin-top:10px;line-height:1.5}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px}
+  th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:right;font-variant-numeric:tabular-nums}
+  th{color:var(--dim);font-weight:600;text-transform:uppercase;font-size:11.5px;letter-spacing:.05em}
+  td:first-child,th:first-child{text-align:left}
+  td.hl{color:var(--teal);font-weight:700}
+  .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+  .claim{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}
+  .claim h3{margin:0 0 8px;font-size:16px}
+  .claim h3 span{color:var(--teal)}
+  .claim p{font-size:13.5px;margin:0 0 9px;line-height:1.5}
+  .for b{color:var(--teal)} .against b{color:var(--terra)}
+  .claim .kill{color:var(--dim);font-size:12.5px;border-top:1px solid var(--line);padding-top:8px}
+  details{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:13px 16px;margin-bottom:9px}
+  summary{cursor:pointer;font-weight:650;font-size:14.5px}
+  details p{color:var(--dim);font-size:13.5px;line-height:1.55;margin:8px 0 2px}
+  code.cmd{background:#0a1114;border:1px solid var(--line);border-radius:8px;padding:3px 9px;color:var(--teal);font-size:13px}
+  .q{background:var(--panel);border:1px dashed #2a3d43;border-radius:14px;padding:16px}
+  .q h3{margin:0 0 6px;font-size:15.5px}
+  .q p{color:var(--dim);font-size:13.5px;margin:0;line-height:1.5}
+  .badge{display:inline-block;font-size:11px;color:var(--amber);border:1px solid rgba(245,185,75,.45);
+         border-radius:999px;padding:2px 9px;margin-bottom:8px;letter-spacing:.06em;text-transform:uppercase}
+  footer{margin-top:42px;border-top:1px solid var(--line);padding-top:14px;color:var(--dim);font-size:12.5px;line-height:1.6}
+  a{color:var(--teal)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brand">NEAR — <span>Beyond the Price</span> · The Thesis, On Trial</div>
+    <div class="stamp mono" id="stamp">checker run — · data as of —</div>
+  </div>
+  <div class="srcbadge" id="srcbadge">Data source: <b>…</b></div>
+
+  <h1>Six ways to kill<br>this thesis. <span class="v">None<br>have fired.</span></h1>
+  <p class="lede">The thesis: NEAR is becoming the settlement layer for cross-chain value transfer — and the
+  market has already paid for that delivery (<b>priced for delivery</b>). It does not ask to be
+  believed: it publishes, in advance, the six observations that would prove it wrong. Below — where each
+  one stands today, how far each is from firing, and the instrument to kill it yourself.</p>
+
+  <h2>The board — where each kill-condition stands</h2>
+  <p class="hsub">Readings are the checker's own output, recomputed from public data. The bar under each card
+  is the distance to the kill line: how much room the thesis has left on that condition. Cards grade
+  <b style="color:var(--teal)">Holding</b>, <b style="color:var(--amber)">Weakening</b> (a presentation band:
+  within 1.4× of a lower-bound kill line; F4 weakens above 70% of its outflow limit) or
+  <b style="color:var(--red)">Triggered</b>. The checker's own statuses are unchanged underneath.</p>
+  <div class="board" id="board"></div>
+
+  <h2>Try to kill it yourself</h2>
+  <p class="hsub">Drag the four live variables and watch the falsifiers fire. This is an interactive
+  simplification — it moves today's readings directly; the formal tests are windowed (F2 over 60 days)
+  and live in the checker. F3 is locked by time and F5 by missing data: no slider can fire them, which is
+  itself part of the design.</p>
+  <div class="killbox">
+    <div style="margin-bottom:14px"><span class="tag" id="killMode">Actual — checker readings</span></div>
+    <div class="killgrid">
+      <label class="sl">Intents volume, 30d avg <b>$<span id="kVolV">125.8</span>M/day</b>
+        <input type="range" id="kVol" min="20" max="200" step="0.5" value="125.8"></label>
+      <label class="sl">Capture rate (60d) <b><span id="kCapV">32.1</span>%</b>
+        <input type="range" id="kCap" min="0" max="45" step="0.1" value="32.1"></label>
+      <label class="sl">Buyback-wallet outflow / 30d <b><span id="kOutV">0.0</span>%</b>
+        <input type="range" id="kOut" min="0" max="12" step="0.1" value="0"></label>
+      <label class="sl">Revenue run-rate vs 4 quarters ago <b><span id="kRatioV">15.8</span>×</b>
+        <input type="range" id="kRatio" min="0" max="16" step="0.1" value="15.8"></label>
+    </div>
+    <div class="verdict" id="verdict"></div>
+    <button class="resetbtn" id="resetKill">Reset to today's readings</button>
+  </div>
+
+  <footer>NEAR Protocol — Beyond the Price · 0xrard · NEAR Hackathon 2026, Investment Thesis track.
+  This terminal reads the repo's own data files (<span class="mono">data/falsifiers.json</span>,
+  <span class="mono">data/model_outputs.json</span>, shipped CSVs) when served from the repo;
+  elsewhere it shows the embedded snapshot of the same run. Verdict: priced for delivery. Not financial advice.</footer>
+
+</div>
+<script>
+/* ================= embedded fallback (checker/model run 13 Nov 2026, data as of 12 Nov) ================= */
+const FALLBACK = {
+  stats: {"retrieved": "2026-11-13", "price_usd": 3.51, "market_cap_usd": 4606063089, "market_cap_rank": 24, "intents_volume_30d_avg_usd": 125805115, "emissions_offset_pct": 18.6, "ps_gross_fees": 66.1},
+  falsifiers: {"generated_at_utc": "2026-11-13T14:31:02.413583+00:00", "data_as_of": "2026-11-12", "falsifiers": [{"id": "F1", "name": "Intents volume falls below $75M/day (30d avg)", "threshold": "volume_30d_avg < $75,000,000/day", "reading": 125805115.06666666, "reading_text": "$125.81M/day over 2026-10-14..2026-11-12", "status": "not_triggered", "source": "DefiLlama daily Intents volume (shipped CSV)"}, {"id": "F2", "name": "Take < 3 bps or capture < 15% (60d)", "threshold": "take < 3 bps OR capture < 15%", "reading": {"take_bps": 5.243304271641258, "capture_pct": 32.160629795556666, "net_60d_usd": 4501811.833333333, "gross_60d_usd": 13997897.0, "volume_60d_usd": 8585829851.0}, "reading_text": "take 5.24 bps (net), capture 32.2% over 2026-09-14..2026-11-12", "status": "not_triggered", "source": "revenue.near.org monthly net + daily revenue series + DefiLlama daily fees/volume (shipped CSVs)"}, {"id": "F3", "name": "HSP-029 not live by mid-2027", "threshold": "HSP-029 not live on 30 Jun 2027", "reading": null, "reading_text": "deadline 2027-06-30 not reached (today 2026-11-13)", "status": "not_yet_decidable", "source": "PDF \u00a73.3 / HSP-029 vote record"}, {"id": "F4", "name": "Buyback-wallet outflow > 5% / 30d", "threshold": "outflow > 5% of balance in 30d", "reading": {"outflow_near": 0.0, "balance_near": 2273913.9, "outflow_pct": 0.0, "threshold_near": 113695.7, "receipts_examined": 783, "inbound_near_total": 303608.14}, "reading_text": "outflow 0.00 NEAR (0.0000% of 2,273,913.90 NEAR balance) over 2026-10-14..2026-11-13", "status": "not_triggered", "source": "Nearblocks API (read-only): /v1/account/{wallet} (balance) + /v1/account/{wallet}/txns (receipts, order=desc, per_page=100). Direction by predecessor/receiver; amounts = action deposits."}, {"id": "F5", "name": "ETF outflows for 4+ weeks", "threshold": "net ETF outflows in 4 consecutive weeks", "reading": null, "reading_text": "cannot compute: no public ETF-flow endpoint", "status": "cannot_check", "source": "none (PDF Table 5: not re-runnable)"}, {"id": "F6", "name": "Net-revenue run-rate not doubling in 4 quarters", "threshold": "current run-rate < 2x run-rate 4 quarters ago", "reading": {"run_rate_now_usd": 22280176.0, "run_rate_baseline_usd": 1408064.0, "ratio": 15.823269396845598}, "reading_text": "run-rate $22.28M/yr vs baseline $1.41M/yr = 15.8x", "status": "not_triggered", "source": "revenue.near.org monthly net revenue"}], "triggered": [], "summary": "0 of 6 falsifiers triggered: none. 4 not triggered, 1 not yet decidable, 1 cannot check."},
+  model: {
+    supply: 1311421234.0, price: 3.5118584696509734, curVol: 125805115.06666666,
+    cumulative: 37614087536, pToFees: 66.09483064859407, annualFees: 69688704,
+    byTake: {"5": 1935257487.1430504, "10": 967628743.5715252, "16": 604767964.7322031, "20": 483814371.7857626},
+    scenarios: [
+      {name:"bear", growth:0.0,  annual:45918866999,  wmt:"Intents volume flat; no new chains or solvers; on-chain activity keeps falling."},
+      {name:"base", growth:0.15, annual:92359243181,  wmt:"Intents volume grows with cross-chain demand; on-chain activity holds; fee capture stable."},
+      {name:"bull", growth:0.30, annual:170493538848, wmt:"30% growth sustained for five years AND HSP-029 live (earliest ~Feb 2027, phased 24 months)."}
+    ]
+  },
+  vol: [32616, 463892, 34041, 40187, 36114, 221381, 175861, 187283, 227653, 153660, 132708, 40411, 103425, 196457, 140381, 77768, 143423, 185585, 110627, 17939, 57681, 191899, 35525, 68258, 120960, 157043, 56324, 31736, 344954, 62017, 27815, 20006, 56145, 19209, 93124, 27697, 95871, 87673, 65135, 149349, 1081552, 1989206, 296077, 100529, 176297, 63162, 220125, 445081, 71967, 75252, 149082, 119890, 98425, 64765, 247422, 542540, 51076, 242736, 116368, 1054164, 241405, 668062, 686610, 219395, 141108, 365117, 901439, 346885, 151737, 1297684, 348495, 1164228, 66300, 226879, 189038, 224218, 565674, 667678, 735914, 1298905, 368595, 954997, 2981522, 1408526, 885041, 858630, 590141, 899589, 95168, 403139, 1522680, 559523, 275461, 534469, 702871, 181075, 384099, 367560, 330914, 380707, 802822, 554965, 487844, 124794, 380325, 1770221, 2000397, 1058575, 198698, 480482, 474679, 806908, 337103, 241400, 364243, 648619, 605462, 850184, 1430246, 773967, 882537, 877627, 2481359, 768709, 1569497, 2098617, 4208643, 1510888, 1358716, 1173508, 606150, 1048848, 1237275, 1277193, 1380665, 1068498, 1991472, 1855851, 369783, 2667441, 6717144, 2920273, 4417980, 1182244, 1051610, 426965, 651101, 1889007, 2282439, 2139666, 1572378, 683723, 1254010, 1200702, 2655387, 2199308, 2922347, 728986, 2094184, 3122279, 2779010, 2683374, 3878737, 3329459, 2855537, 1184401, 2879186, 3793887, 8273062, 3377901, 3233625, 7277882, 12716248, 580054, 1112743, 1805075, 1588617, 3321862, 1348235, 2657126, 1262412, 1883823, 1289199, 5692897, 4090880, 4011948, 3677379, 1495624, 3844820, 8451447, 4885619, 4129271, 10929926, 9780901, 9387687, 9992440, 15031695, 11895855, 24139899, 16507868, 1816196, 10285364, 7224754, 5614096, 9147991, 10554759, 6510304, 5184656, 2996763, 3310451, 2200378, 6636174, 5919234, 4776634, 5252444, 2428528, 5503459, 4321169, 4380706, 6036775, 5674643, 6804435, 13101127, 15153349, 11648727, 8524407, 9196023, 7079757, 7946404, 11373769, 9536026, 8850979, 13739899, 16529243, 16342213, 15590550, 18940842, 7911391, 6819240, 2959918, 3682533, 18847151, 12442829, 16108714, 14854092, 11572595, 14857259, 11078814, 9889476, 3518826, 6067467, 6248003, 10697946, 9877875, 9189001, 15317779, 16108182, 13018980, 12330518, 8750835, 8737827, 9824948, 10527570, 5230624, 4216251, 8460391, 13602100, 9838861, 8268257, 12549246, 10599996, 8089790, 15938210, 21296419, 18696912, 13482558, 17850481, 19735088, 19895215, 20074418, 15992324, 18145467, 25663600, 19032416, 8592984, 13403446, 17610511, 14641455, 11865868, 20081320, 20542251, 14421979, 17100600, 21828212, 26490805, 50238237, 87225707, 77763873, 45254633, 42119011, 38983500, 42892082, 44295455, 47980680, 73028438, 65443649, 54335288, 47816779, 37303098, 34929758, 65577525, 62162872, 23539121, 25501961, 65933200, 46638886, 53802550, 37940840, 57138166, 32505005, 66732599, 82238601, 62736673, 67388321, 94578470, 89077070, 109650992, 88171028, 99983264, 200286901, 102307264, 155847354, 196785629, 123037380, 88676206, 108334721, 106253326, 167067956, 126550519, 152283590, 119815381, 125964648, 121780185, 129756530, 137792554, 176700196, 265296278, 123190676, 103497495, 94641077, 88658477, 74261913, 74125095, 94080980, 53183948, 53073234, 135045754, 112227688, 78060933, 51394347, 67630719, 50746422, 44886591, 47443538, 78282939, 57691352, 59260716, 52505965, 45794825, 48074858, 79774266, 59854498, 72065915, 60172992, 96199414, 49657430, 29813889, 68045414, 50723546, 86752836, 74794818, 70276997, 70599514, 41020655, 64192492, 58094668, 48699112, 30121538, 61485870, 44693491, 51885774, 100494048, 98351827, 111576381, 108708560, 101013813, 55958836, 33159141, 85492757, 120186156, 108375180, 99672346, 113634243, 43213461, 41398615, 127810129, 126155886, 119836980, 95780163, 90537514, 47256531, 81304100, 103887339, 121824973, 118980772, 93136207, 88079786, 100456300, 73458858, 134061336, 126822991, 141480398, 200736408, 162717964, 90603212, 61862422, 92099235, 84435864, 100990725, 85245338, 80690814, 63710625, 78596477, 47136230, 49021772, 71786993, 62698286, 46188790, 36824531, 33488041, 69649052, 79433303, 87966256, 86945832, 61832328, 67777014, 49164506, 78531294, 67282693, 101480715, 71222512, 65662586, 46166294, 39054915, 62367202, 67064905, 61375244, 56106512, 70677007, 37234825, 46224504, 112845053, 55160185, 85325864, 77576567, 59572759, 46338932, 58843157, 88338963, 79953938, 89719042, 63833833, 69311936, 56142325, 37921409, 78687969, 100507387, 116831600, 84983397, 47756793, 27413811, 70920878, 71153272, 95893369, 95555436, 84375908, 78543590, 43580575, 51087301, 80113582, 85932065, 62004714, 36639484, 50216445, 55196390, 52229905, 67188722, 60230053, 65533836, 66816421, 50305898, 27044567, 33672791, 57911209, 48866836, 56814212, 70727442, 55205519, 31398886, 36852466, 64064915, 70373098, 80624180, 58048406, 52032752, 45417297, 41988410, 56699577, 55419913, 55924660, 57248279, 59956250, 41757201, 42753891, 65473363, 59217953, 68124769, 61460429, 79437397, 83844421, 51845556, 92300212, 107988235, 92369923, 82392417, 53559240, 58342762, 133565622, 105296219, 85660378, 87963176, 122937976, 223909280, 62698470, 65031667, 91498944, 81206299, 71683003, 90049310, 102382801, 33423012, 41292854, 111228757, 88881372, 69556636, 70217258, 45401105, 37714999, 44454207, 82174875, 74246647, 93057819, 66800391, 61262195, 39034729, 46187719, 65426787, 94013129, 99055378, 96447091, 72089170, 55377933, 47458867, 93981347, 86753468, 88771460, 80049013, 81720329, 46163888, 44784573, 82437888, 98760204, 100877335, 85276587, 58202991, 48448936, 41160353, 63888505, 107026869, 83753741, 60188910, 60299919, 46055675, 49191335, 56904698, 71130809, 54687246, 76281951, 68353242, 55892983, 36462403, 72342481, 57494072, 72973214, 83869324, 72662913, 58133070, 40456223, 75768932, 78242806, 73701129, 69758339, 77921510, 31744839, 50139274, 90147865, 80870447, 134181536, 136215921, 165407797, 142407166, 111313731, 145642189, 145152506, 126010720, 133221354, 110622273, 56604956, 68306432, 123658848, 131320550, 143225567, 169508996, 209382036, 101244339, 141010447, 109239532, 104742194, 198864845, 150771716, 147252230, 111677869, 87330458, 121309892, 131467577, 134119473, 303419794, 227845909, 126492193, 118561598, 270827432, 223237663, 215033741, 175821655, 180522864, 93548366, 120587818, 167864177, 213684038, 173179408, 125036685, 124137317, 76633486, 64354236, 117176998, 126234797, 119708258, 256069392, 255697796, 153185460, 122774330, 139501825, 133642221, 145432171, 99643158, 88174962, 130727860, 138807317, 97672919, 121452063, 151452049, 132262403, 95545767, 85994134, 89290005, 134322214, 141264151, 112385956, 141723823, 191904557, 73433291, 81928562, 155286804, 137911779, 143981404, 131020261, 141555971, 114752674, 87673580, 166233299, 152754904, 113124728, 176440686],
+  monthly: [{"month": "2025-08", "gross": 419519, "net": 27596, "capture": 0.0658, "mtd": false}, {"month": "2025-09", "gross": 712949, "net": 28639, "capture": 0.0402, "mtd": false}, {"month": "2025-10", "gross": 2496648, "net": 295781, "capture": 0.1185, "mtd": false}, {"month": "2025-11", "gross": 7758092, "net": 657428, "capture": 0.0847, "mtd": false}, {"month": "2025-12", "gross": 4116558, "net": 281334, "capture": 0.0683, "mtd": false}, {"month": "2026-01", "gross": 4410217, "net": 526392, "capture": 0.1194, "mtd": false}, {"month": "2026-02", "gross": 4134501, "net": 429570, "capture": 0.1039, "mtd": false}, {"month": "2026-03", "gross": 3590113, "net": 395381, "capture": 0.1101, "mtd": false}, {"month": "2026-04", "gross": 3207256, "net": 401247, "capture": 0.1251, "mtd": false}, {"month": "2026-05", "gross": 3002309, "net": 823527, "capture": 0.2743, "mtd": false}, {"month": "2026-06", "gross": 3111812, "net": 943198, "capture": 0.3031, "mtd": false}, {"month": "2026-07", "gross": 3271913, "net": 654117, "capture": 0.1999, "mtd": false}, {"month": "2026-08", "gross": 3836975, "net": 871119, "capture": 0.227, "mtd": false}, {"month": "2026-09", "gross": 7325792, "net": 2196455, "capture": 0.2998, "mtd": false}, {"month": "2026-10", "gross": 6388076, "net": 2502470, "capture": 0.3917, "mtd": false}, {"month": "2026-11", "gross": 2408240, "net": 754684, "capture": 0.3134, "mtd": true}]
+};
+const DATA = JSON.parse(JSON.stringify(FALLBACK));
+let LIVE = false;
+
+const $ = id => document.getElementById(id);
+const fmtUSD = (n, d=0) => "$" + n.toLocaleString("en-US",{minimumFractionDigits:d, maximumFractionDigits:d});
+const fmtBig = n => n >= 1e9 ? "$" + (n/1e9).toFixed(2) + "B" : "$" + (n/1e6).toFixed(0) + "M";
+function countUp(el, target, fmt, dur=900){
+  const t0 = performance.now();
+  (function step(t){
+    const k = Math.min(1, (t - t0)/dur), e = 1 - Math.pow(1-k, 3);
+    el.textContent = fmt(target * e);
+    if (k < 1) requestAnimationFrame(step);
+  })(t0);
+}
+function F(id){ return DATA.falsifiers.falsifiers.find(f => f.id === id); }
+
+/* ---------- stamp + status ---------- */
+function renderStamp(){
+  const g = DATA.falsifiers.generated_at_utc ? new Date(DATA.falsifiers.generated_at_utc) : null;
+  const d = g ? g.toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"}) : "13 Nov 2026";
+  $("stamp").textContent = `checker run ${d} · data as of ${DATA.falsifiers.data_as_of || "2026-11-12"}`;
+  $("srcbadge").innerHTML = "Data source: <b>" + (LIVE ? "live — read from this repo's data files at load" :
+    "embedded snapshot — open inside the repo to read its data files live") + "</b>";
+}
+
+/* ---------- board with margin bars ---------- */
+const CHIP = {not_triggered:["ok","Not triggered"], not_yet_decidable:["wait","Not yet decidable"], cannot_check:["na","Cannot check"], triggered:["deadchip","Triggered"]};
+function boardState(f){
+  if (f.status === "triggered") return ["deadchip","Triggered",true];
+  if (f.status === "not_yet_decidable") return ["wait","Not yet decidable",false];
+  if (f.status === "cannot_check") return ["na","Cannot check",false];
+  let weak = false;
+  if (f.id === "F1") weak = f.reading < 75e6 * 1.4;
+  if (f.id === "F2") weak = f.reading.take_bps < 3 * 1.4 || f.reading.capture_pct < 15 * 1.4;
+  if (f.id === "F4") weak = f.reading.outflow_pct > 5 * 0.7;
+  if (f.id === "F6") weak = f.reading.ratio < 2 * 1.4;
+  return weak ? ["warnchip","Weakening",false] : ["ok","Holding",false];
+}
+function barHTML(labelLeft, labelRight, fillPct, tickPct, low){
+  return `<div class="margin"><div class="mlab"><span>${labelLeft}</span><span>${labelRight}</span></div>
+  <div class="bar"><div class="fill ${low ? "low" : ""}" style="width:${Math.min(100, Math.max(0, fillPct)).toFixed(1)}%"></div>
+  <div class="tick" style="left:${tickPct.toFixed(1)}%"></div></div></div>`;
+}
+function marginFor(f){
+  if (f.id === "F1"){
+    const r = f.reading, t = 75e6;
+    return barHTML(`reading <b>$${(r/1e6).toFixed(1)}M/day</b>`, `headroom <b>${(r/t).toFixed(2)}×</b>`, r/(2*t)*100, 50, r < 1.4*t);
+  }
+  if (f.id === "F2"){
+    const tk = f.reading.take_bps, cp = f.reading.capture_pct;
+    return barHTML(`take <b>${tk.toFixed(2)} bps</b> (floor 3)`, `headroom <b>${(tk/3).toFixed(2)}×</b>`, tk/(2*3)*100, 50, tk < 4.2) +
+           barHTML(`capture <b>${cp.toFixed(1)}%</b> (floor 15%)`, `headroom <b>${(cp/15).toFixed(2)}×</b>`, cp/(2*15)*100, 50, cp < 21);
+  }
+  if (f.id === "F3"){
+    const total = 240, elapsed = 11; // 2 Nov 2026 (passed) -> 30 Jun 2027; at 13 Nov
+    return barHTML(`HSP-029 passed 2 Nov 2026`, `<b>${total - elapsed} days</b> left to go live`, elapsed/total*100, 100, false);
+  }
+  if (f.id === "F4"){
+    const o = f.reading.outflow_pct;
+    return barHTML(`outflow <b>${o.toFixed(2)}%</b> of balance / 30d`, `kill line <b>5%</b>`, o/5*100, 100, o > 3.5);
+  }
+  if (f.id === "F5"){
+    return `<div class="margin"><div class="mlab"><span>No public ETF-flow data source exists — for anyone</span><span>stated, not hidden</span></div></div>`;
+  }
+  if (f.id === "F6"){
+    const r = f.reading.ratio, scale = Math.max(4, r*1.05);
+    return barHTML(`run-rate <b>${r.toFixed(1)}×</b> baseline`, `headroom <b>${(r/2).toFixed(1)}×</b>`, r/scale*100, 2/scale*100, false);
+  }
+  return "";
+}
+function renderBoard(){
+  $("board").innerHTML = DATA.falsifiers.falsifiers.map(f => {
+    const c = boardState(f);
+    return `<div class="card ${f.status === "triggered" ? "dead" : (c[1] === "Weakening" ? "weak" : "")}">
+    <div class="row"><span class="fid">${f.id}</span><span class="chip ${c[0]}">${c[1]}</span></div>
+    <div class="fname">${f.name}</div><div class="thr">Threshold: <code>${f.threshold}</code></div>
+    <div class="reading">${f.reading_text}</div>${marginFor(f)}
+    <div class="src">Source: ${f.source}</div></div>`;
+  }).join("");
+}
+
+/* ---------- try to kill it ---------- */
+const KILLDEF = [
+  {fid:"F1", input:"kVol", out:"kVolV", fmt:v => v.toFixed(1), fire:v => v < 75,   suffix:"M/day", pre:"$"},
+  {fid:"F2", input:"kCap", out:"kCapV", fmt:v => v.toFixed(1), fire:v => v < 15,   suffix:"%", pre:""},
+  {fid:"F4", input:"kOut", out:"kOutV", fmt:v => v.toFixed(1), fire:v => v > 5,    suffix:"%", pre:""},
+  {fid:"F6", input:"kRatio", out:"kRatioV", fmt:v => v.toFixed(1), fire:v => v < 2, suffix:"×", pre:""}
+];
+function killDefaults(){
+  return { kVol: F("F1").reading/1e6, kCap: F("F2").reading.capture_pct,
+           kOut: F("F4").reading.outflow_pct, kRatio: F("F6").reading.ratio };
+}
+function renderKill(){
+  const fired = [], defs = killDefaults();
+  let isActual = true;
+  KILLDEF.forEach(d => {
+    const v = +$(d.input).value;
+    $(d.out).textContent = d.fmt(v);
+    if (Math.abs(v - defs[d.input]) > 1e-9) isActual = false;
+    if (d.fire(v)) fired.push(d.fid);
+  });
+  const km = $("killMode");
+  km.textContent = isActual ? "Actual — checker readings" : "Scenario — your inputs, not a checker run";
+  km.className = "tag" + (isActual ? "" : " scen");
+  const vd = $("verdict");
+  if (!fired.length){
+    vd.className = "verdict";
+    vd.innerHTML = `THE THESIS STANDS — priced for delivery.<small>No kill-condition fires at these values. ` +
+      `The market has already paid for the plan; upside requires beating it, not the plan merely happening.</small>`;
+  } else {
+    vd.className = "verdict dead";
+    vd.innerHTML = `THESIS DEAD — killed by ${fired.join(", ")}.<small>At these values the verdict is withdrawn: ` +
+      `the observations the thesis itself named in advance have fired. No narrative rescue — that is the point of the board.</small>`;
+  }
+}
+function initKill(){
+  const defs = killDefaults();
+  KILLDEF.forEach(d => { $(d.input).value = defs[d.input]; $(d.input).addEventListener("input", renderKill); });
+  $("resetKill").addEventListener("click", () => { const d2 = killDefaults(); KILLDEF.forEach(d => $(d.input).value = d2[d.input]); renderKill(); });
+  renderKill();
+}
+
+/* ---------- value bridge ---------- */
+function renderBridge(){
+  const m = DATA.model, f6 = F("F6"), f4 = F("F4");
+  const netAnnual = (f6 && f6.reading && f6.reading.run_rate_now_usd) || 22280176;
+  const bal = (f4 && f4.reading && f4.reading.balance_near) || 2254862.09;
+  const inbound = (f4 && f4.reading && f4.reading.inbound_near_total) || 290607.86;
+  const fmtB = n => n >= 1e9 ? "$" + (n/1e9).toFixed(2) + "B" : "$" + (n/1e6).toFixed(1) + "M";
+  const steps = [
+    ["Intents volume · 30d", fmtB(m.curVol * 30), "Derived — 30d average × 30"],
+    ["Gross fees · 30d", fmtB(m.annualFees / 12), "Observed — DefiLlama fees"],
+    ["Net revenue · 30d run-rate", fmtB(netAnnual / 12), "Derived — F6 annualised ÷ 12"],
+    ["Buyback wallet · stock", Math.round(bal).toLocaleString("en-US") + " NEAR", `Snapshot — F4: ${Math.round(inbound).toLocaleString("en-US")} in · 0 out`]
+  ];
+  $("bridge").innerHTML = steps.map((s,i) =>
+    (i ? `<div class="barrow">→</div>` : "") +
+    `<div class="bstep"><div class="bk">${s[0]}</div><div class="bv">${s[1]}</div><div class="bt">${s[2]}</div></div>`).join("");
+}
+
+/* ---------- strip ---------- */
+function renderStrip(){
+  const s = DATA.stats, m = DATA.model;
+  const cells = [
+    ["NEAR price", fmtUSD(s.price_usd, 2), "CoinGecko"],
+    ["Market cap", fmtBig(s.market_cap_usd), "rank #" + s.market_cap_rank],
+    ["Intents volume, all-time", fmtBig(m.cumulative), "settled via NEAR Intents"],
+    ["Deflation threshold V*", fmtUSD(m.byTake["16"]/1e6, 0) + "M/day", (m.byTake["16"]/m.curVol).toFixed(1) + "× the current run-rate"],
+    ["Price / gross fees", m.pToFees.toFixed(1) + "×", "annualised, 30d run-rate"],
+    ["Emissions offset", s.emissions_offset_pct.toFixed(1) + "%", "of new issuance covered by revenue"]
+  ];
+  $("strip").innerHTML = cells.map(c =>
+    `<div class="stat"><div class="k">${c[0]}</div><div class="val" data-v="${c[1]}">${c[1]}</div><div class="sub">${c[2]}</div></div>`).join("");
+  document.querySelectorAll("#strip .val").forEach(el => {
+    const raw = el.dataset.v, num = parseFloat(raw.replace(/[^0-9.]/g,""));
+    if (isNaN(num)) return;
+    const dec = raw.includes(".") ? raw.split(".")[1].replace(/[^0-9]/g,"").length : 0;
+    countUp(el, num, v => raw.replace(/[0-9][0-9.,]*/, v.toFixed(dec)));
+  });
+}
+
+/* ---------- charts ---------- */
+function linePath(vals, w, h, max, pad){
+  const n = vals.length, sx = (w - 2*pad)/(n - 1);
+  return vals.map((v,i) => (i ? "L" : "M") + (pad + i*sx).toFixed(1) + " " + (h - pad - (v/max)*(h - 2*pad)).toFixed(1)).join(" ");
+}
+function ma(vals, k){
+  const out = []; let s = 0;
+  for (let i=0;i<vals.length;i++){ s += vals[i]; if (i>=k) s -= vals[i-k]; out.push(s/Math.min(i+1,k)); }
+  return out;
+}
+function renderVol(){
+  const VOL = DATA.vol, w=1000, h=300, pad=8, max=Math.max(...VOL)*1.05;
+  const ma30 = ma(VOL,30);
+  const area = linePath(VOL,w,h,max,pad) + ` L ${w-pad} ${h-pad} L ${pad} ${h-pad} Z`;
+  let peak=0; VOL.forEach(v => { if (v>peak) peak=v; });
+  $("volchart").innerHTML =
+   `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Daily Intents volume">
+      <path d="${area}" fill="rgba(61,90,97,.35)"/>
+      <path d="${linePath(VOL,w,h,max,pad)}" fill="none" stroke="#3d5a61" stroke-width="1"/>
+      <path d="${linePath(ma30,w,h,max,pad)}" fill="none" stroke="#2fe6c8" stroke-width="2"/></svg>`;
+  $("volfacts").textContent =
+    `Peak day $${(peak/1e6).toFixed(0)}M · last day $${(VOL[VOL.length-1]/1e6).toFixed(0)}M · 30d average $${(ma30[ma30.length-1]/1e6).toFixed(1)}M/day · ${VOL.length} days`;
+}
+function renderCap(){
+  const M = DATA.monthly, w=1000, h=320, padL=10, padR=10, top=18, bot=26;
+  const maxUSD = Math.max(...M.map(m=>m.gross))*1.12;
+  const n = M.length, band = (w-padL-padR)/n, bw = band*0.34;
+  const X = i => padL + i*band, Y = v => top + (1 - v/maxUSD)*(h-top-bot);
+  const capMax = 0.55, capY = v => top + (1 - v/capMax)*(h-top-bot);
+  let s = `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Monthly fees, revenue and capture rate">`;
+  s += `<line x1="${padL}" y1="${capY(0.15)}" x2="${w-padR}" y2="${capY(0.15)}" stroke="#f5b94b" stroke-width="1.2" stroke-dasharray="6 5"/>`;
+  M.forEach((m,i) => {
+    const gh = (h-top-bot)*(m.gross/maxUSD), nh = (h-top-bot)*(m.net/maxUSD), op = m.mtd ? 0.45 : 1;
+    s += `<rect x="${X(i)+band*0.12}" y="${Y(m.gross)}" width="${bw}" height="${gh}" fill="#3d5a61" opacity="${op}"/>`;
+    s += `<rect x="${X(i)+band*0.12+bw+3}" y="${Y(m.net)}" width="${bw}" height="${nh}" fill="#e07856" opacity="${op}"/>`;
+    s += `<text x="${X(i)+band/2}" y="${h-8}" fill="#8fa5a8" font-size="12" text-anchor="middle">${m.month.slice(2)}</text>`;
+  });
+  s += `<polyline points="${M.map((m,i)=>`${(X(i)+band/2).toFixed(1)},${capY(m.capture).toFixed(1)}`).join(" ")}" fill="none" stroke="#2fe6c8" stroke-width="2"/>`;
+  M.forEach((m,i) => {
+    s += `<circle cx="${X(i)+band/2}" cy="${capY(m.capture)}" r="3" fill="#2fe6c8"/>`;
+    s += `<text x="${X(i)+band/2}" y="${capY(m.capture)-9}" fill="#e8f1f0" font-size="11.5" text-anchor="middle">${(m.capture*100).toFixed(1)}%</text>`;
+  });
+  s += `</svg>`;
+  $("capchart").innerHTML = s;
+  const oct = M.find(m => m.month === "2026-10");
+  if (oct) $("capfact").textContent = `October 2026: ${(oct.capture*100).toFixed(1)}% captured ($${(oct.net/1e6).toFixed(2)}M of $${(oct.gross/1e6).toFixed(2)}M gross)`;
+}
+
+/* ---------- model ---------- */
+function renderModel(){
+  const m = DATA.model;
+  const takes = ["5","10","16","20"];
+  const row = (label, f) => `<tr><td>${label}</td>${takes.map(t =>
+    `<td class="${t==="16" ? "hl" : ""}">$${Math.round(m.byTake[t]*f/1e6).toLocaleString("en-US")}M</td>`).join("")}</tr>`;
+  $("vtable").innerHTML =
+    `<tr><th>V* by take rate</th>${takes.map(t=>`<th>${t} bps</th>`).join("")}</tr>` + row("Issuance 2.5% (today)", 1) + row("Issuance 1.6% (HSP-029)", 0.64);
+  const v25 = m.byTake["16"], v16 = v25*0.64;
+  if ($("scen")) $("scen").innerHTML =
+    `<tr><th>Scenario</th><th>Growth/yr</th><th>Year-5 volume/day</th><th>vs V* 2.5%</th><th>vs V* 1.6%</th><th style="text-align:left">What must be true</th></tr>` +
+    m.scenarios.map(s => {
+      const d = s.annual/365, a = (d/v25), b = (d/v16);
+      return `<tr><td style="text-transform:capitalize">${s.name}</td><td>${Math.round(s.growth*100)}%</td>
+      <td>$${(d/1e6).toFixed(0)}M</td><td>${a.toFixed(2)}×</td>
+      <td class="${b>=1 ? "hl" : ""}">${b.toFixed(2)}×${b>=1 ? " — crosses" : ""}</td>
+      <td style="text-align:left">${s.wmt}</td></tr>`;
+    }).join("");
+  $("vnote").innerHTML = `Supply held at the model's configured ${m.supply.toLocaleString("en-US")} NEAR. ` +
+    `Defaults reproduce the shipped model run (V* ≈ $${Math.round(v25/1e6)}M/day). Formula identical to <i>model/model.py</i>.`;
+}
+function vstar(t,c,p,i){ const m = DATA.model; return m.supply*(i/100)*p/(365*(t/10000)*(c/100)); }
+function renderSliders(){
+  const t=+$("sTake").value, c=+$("sCap").value, p=+$("sPrice").value, i=+$("sIss").value;
+  $("oTake").textContent=t; $("oCap").textContent=c.toFixed(1);
+  $("oPrice").textContent=p.toFixed(2); $("oIss").textContent=i.toFixed(1);
+  const v=vstar(t,c,p,i);
+  $("oV").textContent=fmtUSD(v); $("oMult").textContent=(v/DATA.model.curVol).toFixed(1)+"×";
+  $("oV16").textContent=fmtUSD(vstar(t,c,p,1.6));
+  const aS = $("aScen");
+  if (aS) {
+    const atModel = t === 16 && Math.abs(c - 32.6) < 0.05 && Math.abs(p - DATA.model.price) < 0.005 && Math.abs(i - 2.5) < 0.05;
+    if (atModel) { aS.style.display = "none"; aS.textContent = ""; }
+    else {
+      aS.style.display = "block";
+      aS.innerHTML = "<b>At your inputs</b> (take " + t + " bps, capture " + c.toFixed(1) + "%, price $" + p.toFixed(2) +
+        "): the 2.5% line is " + (vstar(t,c,p,2.5)/DATA.model.curVol).toFixed(1) + "× away and the 1.6% line " +
+        (vstar(t,c,p,1.6)/DATA.model.curVol).toFixed(1) + "×. Your scenario — not a checker reading.";
+    }
+  }
+}
+
+let SNAPDATA = null, liveRun = 0;
+function avgTail(chart, n){
+  const s = chart.slice(-n); let sum = 0; s.forEach(p => sum += p[1]);
+  return { avg: sum / n, sum, from: new Date(s[0][0]*1000).toISOString().slice(0,10), to: new Date(s[s.length-1][0]*1000).toISOString().slice(0,10) };
+}
+function fetchLive(){
+  if (!DATA) return;
+  if (!SNAPDATA) SNAPDATA = DATA;
+  const my = ++liveRun;
+  const got = {}; let settled = 0;
+  const settle = () => {
+    if (my !== liveRun || ++settled < 3) return;
+    if (got.vol && got.price) applyLive(got);
+    else { const d2 = killDefaults(); KILLDEF.forEach(d => { $(d.input).value = d2[d.input]; }); renderKill(); }
+  };
+  fetch("https://api.llama.fi/summary/dexs/near-intents").then(r => { if (!r.ok) throw 0; return r.json(); })
+    .then(j => { got.vol = j.totalDataChart; }).catch(() => { got.vol = null; }).then(settle);
+  fetch("https://api.llama.fi/summary/fees/near-intents").then(r => { if (!r.ok) throw 0; return r.json(); })
+    .then(j => { got.fees = j.totalDataChart; }).catch(() => { got.fees = null; }).then(settle);
+  fetch("https://coins.llama.fi/prices/current/coingecko:near").then(r => { if (!r.ok) throw 0; return r.json(); })
+    .then(j => { got.price = j.coins["coingecko:near"].price; }).catch(() => { got.price = null; }).then(settle);
+}
+function applyLive(got){
+  const v30 = avgTail(got.vol, 30), price = got.price, snap = SNAPDATA;
+  const V = JSON.parse(JSON.stringify(snap));
+  const f1 = V.falsifiers.falsifiers.find(f => f.id === "F1");
+  f1.reading = v30.avg;
+  f1.reading_text = "$" + (v30.avg/1e6).toFixed(2) + "M/day over " + v30.from + ".." + v30.to + " — LIVE (DefiLlama)";
+  f1.status = v30.avg >= 75000000 ? "not_triggered" : "triggered";
+  V.falsifiers.triggered = V.falsifiers.falsifiers.filter(f => f.status === "triggered").map(f => f.id);
+  const ratio = price / snap.model.price;
+  Object.keys(V.model.byTake).forEach(k => V.model.byTake[k] *= ratio);
+  V.model.price = price; V.model.curVol = v30.avg;
+  V.stats.price_usd = price; V.stats.market_cap_usd = Math.round(price * V.model.supply);
+  DATA.falsifiers = V.falsifiers; DATA.model = V.model; DATA.stats = V.stats; renderAll();
+  const defs = killDefaults(); KILLDEF.forEach(d => { $(d.input).value = defs[d.input]; }); renderKill();
+  let take = "";
+  if (got.fees) { const f30 = avgTail(got.fees, 30); take = " · gross take (30d) " + (f30.sum / v30.sum * 10000).toFixed(1) + " bps (context only — F2 stays the checker run)"; }
+  $("srcbadge").textContent = "LIVE · DefiLlama, fetched just now — F1, price, V* live; F2–F6 = checker run";
+}
+function renderDynamics(){
+  if (!DATA.model || !DATA.falsifiers) return;
+  const m = DATA.model, find = id => F(id);
+  const set = (id, t) => { const n = $(id); if (n) n.textContent = t; };
+  set("dCum", "$" + (m.cumulative/1e9).toFixed(2) + "B");
+  set("dRun", "$" + (find("F1").reading/1e6).toFixed(1) + "M/day");
+  const f4 = find("F4");
+  if (f4 && f4.reading) set("dBal", Math.round(f4.reading.balance_near ?? (f4.reading.details ? f4.reading.details.balance_near : 0)).toLocaleString("en-US"));
+  const vNow = m.byTake["16"], v16 = vNow * (1.6/2.5);
+  set("dVnow", fmtUSD(vNow/1e6, 0) + "M/day");
+  set("dV16", fmtUSD(v16/1e6, 0) + "M/day");
+  set("dV16b", fmtUSD(v16/1e6, 0) + "M/day");
+  set("dMult", (v16 / m.curVol).toFixed(1) + "×");
+  set("aMult25", (vNow / m.curVol).toFixed(1) + "×");
+  const vv = DATA.model.byTake["16"], cvv = DATA.model.curVol;
+  set("vdist", "Break-even V* is $" + Math.round(vv/1e6) + "M/day \u2014 " + (vv/cvv).toFixed(1) + "\u00d7 today's run-rate; at the passed 1.6% schedule, $" + Math.round(vv*0.64/1e6) + "M/day \u2014 " + (vv*0.64/cvv).toFixed(1) + "\u00d7.");
+  set("aMult16", (v16 / m.curVol).toFixed(1) + "×");
+  const fj = DATA.falsifiers || {};
+  if (fj.generated_at_utc) set("aDate", "Checker run of " + new Date(fj.generated_at_utc).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }) + " · data as of " + (fj.data_as_of || "") + ".");
+}
+function renderAll(){ renderStamp(); renderBoard(); renderDynamics(); }
+renderAll();
+initKill();
+
+/* ================= live data from the repo (when served from dashboard/) ================= */
+function parseCSV(text){
+  const lines = text.trim().split("\n"), head = lines[0].split(",");
+  return lines.slice(1).map(l => { const v = l.split(","); const o = {}; head.forEach((h,i)=>o[h]=v[i]); return o; });
+}
+(async function(){
+  try {
+    const [fj, mj, sj, volCsv, feeCsv, revCsv] = await Promise.all([
+      fetch("../data/falsifiers.json").then(r => { if(!r.ok) throw 0; return r.json(); }),
+      fetch("../data/model_outputs.json").then(r => { if(!r.ok) throw 0; return r.json(); }),
+      fetch("../data/stats.json").then(r => { if(!r.ok) throw 0; return r.json(); }),
+      fetch("../data/intents_volume_daily.csv").then(r => { if(!r.ok) throw 0; return r.text(); }),
+      fetch("../data/intents_fees_daily.csv").then(r => { if(!r.ok) throw 0; return r.text(); }),
+      fetch("../data/intents_revenue_monthly.csv").then(r => { if(!r.ok) throw 0; return r.text(); })
+    ]);
+    DATA.falsifiers = fj;
+    DATA.stats = sj;
+    DATA.model = {
+      supply: mj.inputs.total_supply_near, price: mj.inputs.near_price_usd,
+      curVol: mj.inputs.daily_intents_volume_usd, cumulative: mj.hero_stats.cumulative_intents_volume_usd,
+      pToFees: mj.p_to_fees, annualFees: mj.hero_stats.annualised_fees_usd, byTake: mj.deflationary_threshold.daily_volume_usd_by_take_rate_bps,
+      scenarios: mj.scenarios.map(s => ({name:s.name, growth:s.annual_growth, annual:s.annual_settlement_volume_usd,
+        wmt: s.name === "bull" ? "30% growth sustained for five years AND HSP-029 live (earliest ~Feb 2027, phased 24 months)." : (s.what_must_be_true || "")}))
+    };
+    DATA.vol = parseCSV(volCsv).map(r => parseFloat(r.volume_usd));
+    const gross = {};
+    parseCSV(feeCsv).forEach(r => { const k = r.date.slice(0,7); gross[k] = (gross[k]||0) + parseFloat(r.fees_usd); });
+    const net = {}; parseCSV(revCsv).forEach(r => {
+      const k = r.year ? `${r.year}-${String(r.month).padStart(2,"0")}` : r.month;
+      net[k] = parseFloat(r.net_revenue_usd);
+    });
+    const months = Object.keys(gross).filter(k => k in net).sort();
+    if (!months.length || !DATA.vol.length) throw 0;
+    DATA.monthly = months.map((k,i) => ({month:k, gross:Math.round(gross[k]), net:Math.round(net[k]),
+      capture: net[k]/gross[k], mtd: i === months.length-1}));
+    LIVE = true;
+    renderAll();
+    initKill();
+  } catch(e) { /* stay on the embedded snapshot */ }
+  fetchLive();
+})();
+</script>
+</body>
+</html>
