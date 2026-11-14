@@ -1395,7 +1395,7 @@
   .meth-box code{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:.82em;background:var(--accent-soft);padding:.05rem .3rem;border-radius:3px}
 
   /* ---------- Bagian 2–7 · treatment sama seperti Bagian 1 — full hitam flat, tanpa kotak / garis / pola ---------- */
-  section#subhipotesis,section#grafik,section#banding,section#model,section#bukti,section#metodologi,section#appendix-b,section#faq{
+  section#subhipotesis,section#grafik,section#banding,section#model,section#bukti,section#metodologi,section#appendix-b{
     --paper:#0a0a0a;
     --paper-2:rgba(255,255,255,.05);
     --card:transparent;
@@ -1605,16 +1605,7 @@
     .query-btn .chev{transition:none}
   }
 
-  /* ---------- additions · live banner, auditors, delta, fee-flow, sensitivity, FAQ ---------- */
-  .live-banner{
-    display:flex;align-items:center;gap:.55rem;flex-wrap:wrap;
-    margin:1rem 0 0;max-width:70ch;
-    font-family:"Inter",system-ui,sans-serif;font-size:.84rem;font-weight:600;line-height:1.45;
-    color:#ededed;background:rgba(224,120,86,.12);
-    border:1px solid rgba(224,120,86,.55);border-radius:6px;
-    padding:.55rem .85rem;
-  }
-  .live-banner .live-dot{width:.55rem;height:.55rem;border-radius:50%;background:#5cb586;flex:none}
+  /* ---------- additions · auditors, delta, fee-flow, sensitivity ---------- */
   section#klaim .audit-wrap{margin:1.4rem 0 .6rem;max-width:820px}
   section#klaim table.audit{min-width:0;font-size:.8rem}
   section#klaim table.audit th,section#klaim table.audit td{padding:.42rem .7rem}
@@ -1642,56 +1633,6 @@
   section#grafik table.thr tr.total td{color:#ededed;font-weight:600}
   section#grafik .fee-note{font-size:.78rem;color:#9a9a9a;line-height:1.55;margin:.2rem 0 1rem;max-width:70ch}
   section#banding table.thr td.base-case{color:#ffffff;font-weight:700;background:rgba(224,120,86,.14)}
-  section#faq .sec-label{color:#E07856;line-height:1.35;margin:0 0 .12rem}
-  section#faq .sec-label::after{display:none}
-  section#faq h2.sec-title{font-family:"Playfair Display",Georgia,serif;color:#ffffff;line-height:1.15;margin:0 0 .75rem}
-  /* font FAQ diperkecil dan spacing dirapatkan: pertanyaan 1.15rem →
-     1rem, jawaban diberi ukuran eksplisit .88rem (sebelumnya mewarisi
-     body 1rem), jarak antar item 1.4rem → 1.05rem */
-  section#faq .faq-item{margin:0 0 1.05rem;max-width:70ch}
-  section#faq .faq-item:last-child{margin-bottom:0}
-  section#faq .faq-q{
-    font-family:"Playfair Display",Georgia,serif;font-size:1rem;font-weight:600;color:#d4d4d4;
-    line-height:1.3;margin:0;
-  }
-  /* pertanyaan sekarang tombol accordion — gaya teks tetap dari .faq-q di
-     atas (font diwarisi), tombolnya sendiri transparan tanpa border.
-     Ikon plus di kanan menjadi petunjuk klik; saat jawaban terbuka ikon
-     berputar 45deg (plus menjadi tanda silang = tutup) */
-  section#faq .faq-toggle{
-    display:flex;align-items:center;justify-content:space-between;gap:.8rem;
-    width:100%;margin:0;padding:.1rem 0;
-    background:none;border:none;border-radius:4px;
-    font:inherit;color:inherit;text-align:left;cursor:pointer;
-  }
-  section#faq .faq-toggle:hover .faq-q-text{color:#ffffff}
-  section#faq .faq-toggle:hover .faq-icon{border-color:#E07856;background:rgba(224,120,86,.12)}
-  section#faq .faq-toggle:focus-visible{outline:2px solid #E07856;outline-offset:3px}
-  /* ikon plus ikut diperkecil mengikuti font pertanyaan (1.9rem → 1.6rem,
-     batang 11px → 9px) supaya proporsinya tetap seimbang */
-  section#faq .faq-icon{
-    position:relative;flex:none;width:1.6rem;height:1.6rem;border-radius:50%;
-    border:1px solid rgba(224,120,86,.55);
-  }
-  section#faq .faq-icon::before,section#faq .faq-icon::after{
-    content:"";position:absolute;top:50%;left:50%;
-    width:9px;height:2px;margin:-1px 0 0 -4.5px;border-radius:1px;
-    background:#E07856;
-  }
-  section#faq .faq-icon::after{transform:rotate(90deg)}
-  section#faq .faq-toggle[aria-expanded="true"] .faq-icon{transform:rotate(45deg);background:rgba(224,120,86,.12)}
-  @media (prefers-reduced-motion: no-preference){
-    section#faq .faq-q-text{transition:color .15s ease}
-    section#faq .faq-icon{transition:transform .2s ease,background .15s ease,border-color .15s ease}
-  }
-  section#faq .faq-a{color:#a8a8a8;font-size:.88rem;margin:.3rem 0 0;line-height:1.55}
-  section#faq .faq-a[hidden]{display:none}
-  section#faq .faq-a code{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:.86em;background:rgba(224,120,86,.16);color:#ffffff;padding:.05rem .3rem;border-radius:3px}
-  /* saat dicetak semua jawaban ditampilkan — halaman tetap lengkap di atas kertas */
-  @media print{
-    section#faq .faq-a{display:block !important}
-    section#faq .faq-icon{display:none}
-  }
 </style>
 </head>
 <body class="preview">
@@ -1717,7 +1658,6 @@
       </div>
       <p class="hero-live">Live Check re-tests the numbers in your browser — thesis dated 13 Nov 2026</p>
       <p class="hero-live-link"><a href="index-generated.html">Rerun it in your browser</a><a class="btn-light" href="terminal-v5.html">Try to kill the thesis</a></p>
-      <p class="live-banner" id="liveBanner"><span class="live-dot" aria-hidden="true"></span><span>LIVE as of <span id="liveAsOf">13 Nov 2026</span> — F1 <span id="liveF1Status">NOT TRIGGERED</span> at <span id="liveF1Vol">$125.8M/day</span> (floor $75M)</span></p>
       <hr class="hero-rule" />
     </div>
   </div>
@@ -2323,37 +2263,6 @@ print(f"P/S gross {ps_gross:.0f}x | P/S net {ps_net:.0f}x")</pre>
     <p class="exec-para"><b>Method notes.</b> The effective take uses October 2026 as the cleanest full month (post-capture-improvement); using the trailing-30d window instead yields 6.4 basis points and shifts V* by under 2%. The staker share of issuance (90%) follows the HSP-029 documentation and reconciles with independent yield estimates; the appendix script computes both 90% and 100% variants. NearBlocks&rsquo; anonymous pagination window covers the latest 250 wallet transactions; the full 3,339-transaction history is auditable via the BigQuery SQL in Appendix A.4. All charts in this report are regenerable from the same script. The 0.13 bp gap is rounding, not a conflict: the model multiplies the rounded gross take (16 bps) by capture (32.6%), while the measurement uses the unrounded gross take (16.4 bps).</p>
   </section>
 
-  <div class="page-break">
-    <a class="pb-cue" href="#faq" aria-label="Scroll to Frequently Asked Questions"><span class="pb-chevrons" aria-hidden="true"><span class="pb-chevron"><i data-lucide="chevron-down"></i></span><span class="pb-chevron"><i data-lucide="chevron-down"></i></span><span class="pb-chevron"><i data-lucide="chevron-down"></i></span></span></a>
-    <hr class="pb-rule" />
-  </div>
-
-  <!-- ================= FAQ ================= -->
-  <section id="faq">
-    <p class="sec-label">FAQ</p>
-    <h2 class="sec-title">Frequently Asked Questions</h2>
-    <div class="faq-item">
-      <h3 class="faq-q"><button class="faq-toggle" type="button" aria-expanded="false" aria-controls="faq-a-1"><span class="faq-q-text">Where do the numbers come from?</span><span class="faq-icon" aria-hidden="true"></span></button></h3>
-      <p class="faq-a" id="faq-a-1" hidden>Tier 1 (re-runnable, no API keys): CoinGecko for price and market cap, DefiLlama for Intents volume and fees, NearBlocks for wallet flows, revenue.near.org for the revenue dashboard, BigQuery public dataset for on-chain history. Tier 2 (cited, not re-runnable): Nansen research and ETF flow tallies. No main claim depends on Tier 2 alone.</p>
-    </div>
-    <div class="faq-item">
-      <h3 class="faq-q"><button class="faq-toggle" type="button" aria-expanded="false" aria-controls="faq-a-2"><span class="faq-q-text">How often is the data updated?</span><span class="faq-icon" aria-hidden="true"></span></button></h3>
-      <p class="faq-a" id="faq-a-2" hidden>The thesis is a snapshot dated 13 Nov 2026. The Live Check page re-tests F1, price and V* live from DefiLlama on every open; F2 to F6 are snapshot readings.</p>
-    </div>
-    <div class="faq-item">
-      <h3 class="faq-q"><button class="faq-toggle" type="button" aria-expanded="false" aria-controls="faq-a-3"><span class="faq-q-text">How do I re-run the model?</span><span class="faq-icon" aria-hidden="true"></span></button></h3>
-      <p class="faq-a" id="faq-a-3" hidden>Run <code>bash rebuild.sh --model-only</code> from the repo root. No credentials needed; it reproduces the model and falsifiers from the shipped CSVs. See the &ldquo;For judges&rdquo; block in the README.</p>
-    </div>
-    <div class="faq-item">
-      <h3 class="faq-q"><button class="faq-toggle" type="button" aria-expanded="false" aria-controls="faq-a-4"><span class="faq-q-text">What does &ldquo;cannot check&rdquo; mean?</span><span class="faq-icon" aria-hidden="true"></span></button></h3>
-      <p class="faq-a" id="faq-a-4" hidden>It is honest reporting, not a gap. F3 is not decidable until 30 Jun 2027; F5 has no public ETF endpoint; hypothesis A cannot be computed from the available data.</p>
-    </div>
-    <div class="faq-item">
-      <h3 class="faq-q"><button class="faq-toggle" type="button" aria-expanded="false" aria-controls="faq-a-5"><span class="faq-q-text">What would change the verdict?</span><span class="faq-icon" aria-hidden="true"></span></button></h3>
-      <p class="faq-a" id="faq-a-5" hidden>Any of the six falsifiers F1 to F6 triggering (for example 30-day Intents volume below $75M/day, or buyback-wallet outflow above 5% of balance in 30 days), or the five &ldquo;What would change our mind&rdquo; triggers in Chapter 1.</p>
-    </div>
-  </section>
-
   <!-- ================= FOOTER ================= -->
   <footer>
     <span><i data-lucide="pen-line"></i> 0xrard</span>
@@ -2377,17 +2286,6 @@ print(f"P/S gross {ps_gross:.0f}x | P/S net {ps_net:.0f}x")</pre>
       var panel = btn.nextElementSibling;
       var open = panel.classList.toggle('open');
       btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-    });
-  });
-
-  // FAQ accordion — answers hidden by default; clicking a question toggles
-  // its own answer open/closed (the plus icon rotates via aria-expanded).
-  document.querySelectorAll('#faq .faq-toggle').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      var panel = document.getElementById(btn.getAttribute('aria-controls'));
-      var open = btn.getAttribute('aria-expanded') === 'true';
-      btn.setAttribute('aria-expanded', open ? 'false' : 'true');
-      if (panel) { panel.hidden = open; }
     });
   });
 
@@ -3115,10 +3013,6 @@ print(f"P/S gross {ps_gross:.0f}x | P/S net {ps_net:.0f}x")</pre>
         .then(function (r) { if (timer) { clearTimeout(timer); } if (!r.ok) { throw new Error("bad response"); } return r.json(); })
         .catch(function (e) { if (timer) { clearTimeout(timer); } throw e; });
     }
-    try {
-      var asOf = document.getElementById("liveAsOf");
-      if (asOf) { asOf.textContent = new Date().toLocaleString(); }
-    } catch (e) { /* fail silent */ }
     fetchJson("https://coins.llama.fi/prices/current/coingecko:near")
       .then(function (d) {
         var entry = d && d.coins && d.coins["coingecko:near"];
@@ -3148,10 +3042,6 @@ print(f"P/S gross {ps_gross:.0f}x | P/S net {ps_net:.0f}x")</pre>
         if (!isFinite(avgM) || avgM <= 0) { return; }
         var volEl = document.getElementById("heroVolume");
         if (volEl) { volEl.textContent = "$" + Math.round(avgM) + "M/day"; }
-        var f1El = document.getElementById("liveF1Vol");
-        if (f1El) { f1El.textContent = "$" + avgM.toFixed(1) + "M/day"; }
-        var stEl = document.getElementById("liveF1Status");
-        if (stEl) { stEl.textContent = avgM < 75 ? "TRIGGERED" : "NOT TRIGGERED"; }
       })
       .catch(function () { /* fail silent */ });
   })();

@@ -71,6 +71,12 @@
   .bar .tick{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--red);border-radius:2px}
   .bar .tick:after{content:"kill line";position:absolute;top:-14px;right:-4px;font-size:9.5px;color:var(--red);
                    letter-spacing:.05em;text-transform:uppercase;white-space:nowrap}
+  .trialhead{font-size:clamp(30px,5vw,52px);line-height:1.05;margin:28px 0 8px;font-weight:850}
+  .trialhead .cnt{font-size:.62em;font-weight:700;color:var(--dim);letter-spacing:.02em;white-space:nowrap}
+  .trialhead .cnt b{color:var(--red);font-weight:800}
+  .trialhead .cnt.zero b{color:var(--teal)}
+  .killhead{color:var(--amber);font-size:12.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;margin:26px 0 6px}
+  .killhead::before{content:"\25B8  "}
   .killbox{background:linear-gradient(180deg,#0d1512,#0c1317);border:1px solid #274b41;border-radius:16px;padding:20px}
   .killgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px 24px}
   label.sl{display:block;font-size:13px;color:var(--dim)}
@@ -137,11 +143,9 @@
   </div>
   <div class="srcbadge" id="srcbadge">Data source: <b>…</b></div>
 
-  <h1>Six ways to kill<br>this thesis. <span class="v">None<br>have fired.</span></h1>
-  <p class="lede">The thesis: NEAR is becoming the settlement layer for cross-chain value transfer — and the
-  market has already paid for that delivery (<b>priced for delivery</b>). It does not ask to be
-  believed: it publishes, in advance, the six observations that would prove it wrong. Below — where each
-  one stands today, how far each is from firing, and the instrument to kill it yourself.</p>
+  <h1 class="trialhead">The thesis, on trial <span class="cnt zero" id="trialCount"><b>0</b> of 6 falsifiers triggered</span></h1>
+  <p class="lede">Six conditions were written down in advance that would kill this thesis. As of the 13 Nov 2026 snapshot,
+  none has fired. Drag the kill-switch sliders below and try to fire F1 or F2 yourself.</p>
 
   <h2>The board — where each kill-condition stands</h2>
   <p class="hsub">Readings are the checker's own output, recomputed from public data. The bar under each card
@@ -156,6 +160,8 @@
   simplification — it moves today's readings directly; the formal tests are windowed (F2 over 60 days)
   and live in the checker. F3 is locked by time and F5 by missing data: no slider can fire them, which is
   itself part of the design.</p>
+  <div class="killhead">Kill switch — stress the snapshot inputs</div>
+  <p class="hsub">F1 and F2 read the slider values, starting from the frozen snapshot readings. Push volume under $75M/day, or the take under 3 bps / capture under 15%, and watch the board react.</p>
   <div class="killbox">
     <div style="margin-bottom:14px"><span class="tag" id="killMode">Actual — checker readings</span></div>
     <div class="killgrid">
@@ -266,15 +272,26 @@ function marginFor(f){
   }
   return "";
 }
+let SLIDER_FIRED = new Set();
+function updateTrialCount(){
+  const el = $("trialCount"); if (!el) return;
+  const n = DATA.falsifiers.falsifiers.filter(f => f.status === "triggered" || SLIDER_FIRED.has(f.id)).length;
+  el.innerHTML = `<b>${n}</b> of 6 falsifiers triggered`;
+  el.className = "cnt" + (n === 0 ? " zero" : "");
+}
 function renderBoard(){
   $("board").innerHTML = DATA.falsifiers.falsifiers.map(f => {
     const c = boardState(f);
-    return `<div class="card ${f.status === "triggered" ? "dead" : (c[1] === "Weakening" ? "weak" : "")}">
-    <div class="row"><span class="fid">${f.id}</span><span class="chip ${c[0]}">${c[1]}</span></div>
+    const sliderDead = SLIDER_FIRED.has(f.id);
+    const shown = sliderDead ? ["deadchip", "Triggered"] : c;
+    const isDead = f.status === "triggered" || sliderDead;
+    return `<div class="card ${isDead ? "dead" : (shown[1] === "Weakening" ? "weak" : "")}">
+    <div class="row"><span class="fid">${f.id}</span><span class="chip ${shown[0]}">${shown[1]}</span></div>
     <div class="fname">${f.name}</div><div class="thr">Threshold: <code>${f.threshold}</code></div>
     <div class="reading">${f.reading_text}</div>${marginFor(f)}
     <div class="src">Source: ${f.source}</div></div>`;
   }).join("");
+  updateTrialCount();
 }
 
 /* ---------- try to kill it ---------- */
@@ -297,6 +314,8 @@ function renderKill(){
     if (Math.abs(v - defs[d.input]) > 1e-9) isActual = false;
     if (d.fire(v)) fired.push(d.fid);
   });
+  SLIDER_FIRED = new Set(fired);
+  renderBoard();
   const km = $("killMode");
   km.textContent = isActual ? "Actual — checker readings" : "Scenario — your inputs, not a checker run";
   km.className = "tag" + (isActual ? "" : " scen");
